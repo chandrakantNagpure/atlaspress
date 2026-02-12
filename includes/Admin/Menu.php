@@ -7,7 +7,6 @@ use AtlasPress\Admin\Pages\Entries;
 use AtlasPress\Admin\Pages\SetupWizard;
 use AtlasPress\Admin\Pages\SecuritySettings;
 use AtlasPress\Admin\Pages\Webhooks;
-use AtlasPress\Admin\Pages\Integration;
 use AtlasPress\Core\Permissions;
 
 class Menu {
@@ -38,10 +37,6 @@ class Menu {
         
         if(Permissions::can_manage_types()) {
             add_submenu_page('atlaspress','Webhooks','Webhooks','atlaspress_manage_types','atlaspress-webhooks',[\AtlasPress\Admin\Pages\Webhooks::class,'render']);
-        }
-        
-        if(Permissions::can_manage_types()) {
-            add_submenu_page('atlaspress','Integration','Integration','atlaspress_manage_types','atlaspress-integration',[\AtlasPress\Admin\Pages\Integration::class,'render']);
         }
         
         add_submenu_page('atlaspress','Help','Help','read','atlaspress-help',[\AtlasPress\Admin\Pages\Help::class,'render']);
