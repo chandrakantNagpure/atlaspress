@@ -36,6 +36,7 @@ class Loader {
         add_action( 'wp_ajax_atlaspress_setup', [ SetupWizard::class, 'handle_setup' ] );
         add_action( 'wp_ajax_atlaspress_reset_setup', [ SetupWizard::class, 'handle_reset' ] );
         add_action( 'wp_ajax_save_security_settings', [ self::class, 'handle_security_settings' ] );
+        add_action( 'wp_ajax_atlaspress_save_webhooks', [ self::class, 'handle_save_webhooks' ] );
         
         Integration::init();
     }
@@ -85,5 +86,18 @@ class Loader {
         }
 
         wp_send_json_error('Invalid request');
+    }
+    
+    public static function handle_save_webhooks() {
+        check_ajax_referer('atlaspress_webhooks', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized');
+            return;
+        }
+        
+        $webhooks = json_decode(stripslashes($_POST['webhooks']), true);
+        update_option('atlaspress_webhooks', $webhooks);
+        wp_send_json_success(['message' => 'Webhooks saved']);
     }
 }

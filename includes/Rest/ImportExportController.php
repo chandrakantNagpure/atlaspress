@@ -24,6 +24,10 @@ class ImportExportController {
         register_rest_route('atlaspress/v1','/import/content-types',[
             ['methods'=>'POST','callback'=>[self::class,'import_content_types'],'permission_callback'=>[Permissions::class,'can_manage_types']]
         ]);
+        
+        register_rest_route('atlaspress/v1','/import/entries/(?P<type_id>\d+)',[
+            ['methods'=>'POST','callback'=>[self::class,'import_entries'],'permission_callback'=>[Permissions::class,'can_edit_entries']]
+        ]);
     }
 
     public static function export_content_types() {
@@ -218,5 +222,100 @@ class ImportExportController {
         
         fclose($output);
         exit;
+    }
+    
+    public static function import_entries(WP_REST_Request $req) {
+        global $wpdb;
+        $type_id = (int)$req['type_id'];
+        
+        $types_table = $wpdb->prefix.'atlaspress_content_types';
+        $type = $wpdb->get_row($wpdb->prepare("SELECT * FROM $types_table WHERE id=%d", $type_id));
+        if(!$type) return new WP_Error('not_found','Content type not found',['status'=>404]);
+        
+        $files = $req->get_file_params();
+        if(empty($files['file'])) {
+            return new WP_Error('no_file','No file uploaded',['status'=>400]);
+        }
+        
+        $file = $files['file'];
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        
+        if(!in_array($ext, ['csv', 'json'])) {
+            return new WP_Error('invalid_format','Only CSV and JSON files are supported',['status'=>400]);
+        }
+        
+        $content = file_get_contents($file['tmp_name']);
+        
+        if($ext === 'json') {
+            return self::import_json($type_id, $content);
+        } else {
+            return self::import_csv($type_id, $content);
+        }
+    }
+    
+    private static function import_json($type_id, $content) {
+        global $wpdb;
+        $data = json_decode($content, true);
+        
+        if(!$data || !isset($data['entries'])) {
+            return new WP_Error('invalid_json','Invalid JSON format',['status'=>400]);
+        }
+        
+        $table = $wpdb->prefix.'atlaspress_entries';
+        $imported = 0;
+        
+        foreach($data['entries'] as $entry) {
+            $wpdb->insert($table, [
+                'content_type_id' => $type_id,
+                'title' => sanitize_text_field($entry['title'] ?? 'Imported Entry'),
+                'slug' => sanitize_title($entry['slug'] ?? $entry['title'] ?? 'imported-' . time()),
+                'data' => wp_json_encode($entry['data'] ?? []),
+                'status' => sanitize_text_field($entry['status'] ?? 'published'),
+                'created_at' => current_time('mysql')
+            ]);
+            $imported++;
+        }
+        
+        return new WP_REST_Response(['message'=>"Imported {$imported} entries",'imported'=>$imported], 200);
+    }
+    
+    private static function import_csv($type_id, $content) {
+        global $wpdb;
+        $lines = str_getcsv($content, "\n");
+        
+        if(empty($lines)) {
+            return new WP_Error('empty_file','CSV file is empty',['status'=>400]);
+        }
+        
+        $headers = str_getcsv(array_shift($lines));
+        $table = $wpdb->prefix.'atlaspress_entries';
+        $imported = 0;
+        
+        foreach($lines as $line) {
+            $row = str_getcsv($line);
+            if(count($row) !== count($headers)) continue;
+            
+            $data = [];
+            foreach($headers as $i => $header) {
+                if(!in_array($header, ['ID', 'Title', 'Created At'])) {
+                    $data[$header] = $row[$i];
+                }
+            }
+            
+            $title_index = array_search('Title', $headers);
+            $title = $title_index !== false ? $row[$title_index] : 'Imported Entry';
+            
+            $wpdb->insert($table, [
+                'content_type_id' => $type_id,
+                'title' => sanitize_text_field($title),
+                'slug' => sanitize_title($title . '-' . time()),
+                'data' => wp_json_encode($data),
+                'status' => 'published',
+                'created_at' => current_time('mysql')
+            ]);
+            $imported++;
+        }
+        
+        return new WP_REST_Response(['message'=>"Imported {$imported} entries",'imported'=>$imported], 200);
     }
 }

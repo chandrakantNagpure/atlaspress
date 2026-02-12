@@ -1824,10 +1824,49 @@ const EntriesApp = () => {
                         createElement('option', { key: type.id, value: type.id }, type.name)
                     )
                 ),
-                selectedType && entries.length > 0 && createElement(
+                selectedType && createElement(
                     'div',
                     { style: { display: 'flex', gap: '5px' } },
+                    createElement('input', {
+                        type: 'file',
+                        id: 'import-file',
+                        accept: '.csv,.json',
+                        style: { display: 'none' },
+                        onChange: async (e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            
+                            try {
+                                const response = await fetch(`/wp-json/atlaspress/v1/import/entries/${selectedType}`, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: { 'X-WP-Nonce': wpApiSettings.nonce }
+                                });
+                                const result = await response.json();
+                                if (response.ok) {
+                                    showNotification(result.message);
+                                    loadEntries(selectedType);
+                                } else {
+                                    showNotification(result.message || 'Import failed', 'error');
+                                }
+                            } catch (error) {
+                                showNotification('Import failed: ' + error.message, 'error');
+                            }
+                            e.target.value = '';
+                        }
+                    }),
                     createElement(
+                        'button',
+                        {
+                            className: 'button',
+                            onClick: () => document.getElementById('import-file').click()
+                        },
+                        'Import'
+                    ),
+                    entries.length > 0 && createElement(
                         'button',
                         {
                             className: 'button',
@@ -1835,7 +1874,7 @@ const EntriesApp = () => {
                         },
                         'Export CSV'
                     ),
-                    createElement(
+                    entries.length > 0 && createElement(
                         'button',
                         {
                             className: 'button',
@@ -1843,7 +1882,7 @@ const EntriesApp = () => {
                         },
                         'Export JSON'
                     ),
-                    createElement(
+                    entries.length > 0 && createElement(
                         'button',
                         {
                             className: 'button',
