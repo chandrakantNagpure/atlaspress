@@ -49,6 +49,12 @@ class Loader {
         if ( strpos( $hook, 'atlaspress' ) === false ) return;
 
         wp_enqueue_style('atlaspress-admin', ATLASPRESS_URL.'assets/css/admin.css', [], ATLASPRESS_VERSION);
+        
+        // Enqueue entries-specific CSS
+        if ( strpos( $hook, 'atlaspress-entries' ) !== false ) {
+            wp_enqueue_style('atlaspress-entries', ATLASPRESS_URL.'assets/css/entries.css', ['atlaspress-admin'], ATLASPRESS_VERSION);
+        }
+        
         wp_enqueue_script('atlaspress-admin', ATLASPRESS_URL.'assets/js/admin.js', ['wp-element','wp-api-fetch'], ATLASPRESS_VERSION, true);
         
         // Add ajaxurl for setup wizard
