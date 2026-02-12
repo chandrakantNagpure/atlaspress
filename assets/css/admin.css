@@ -648,7 +648,7 @@ textarea {
     padding: 8px 12px;
     transition: all 0.2s ease;
     font-size: 13px;
-    height: 36px;
+    height: 46px;
     line-height: 1.4;
 }
 
@@ -1364,4 +1364,11 @@ textarea:focus {
     padding: 0 16px;
     color: var(--gray-600);
     font-size: 14px;
+}
+.wp-core-ui select{
+    min-width: 200px;
+}
+
+.wp-core-ui .button, .wp-core-ui .button-secondary{
+    height: 100%;
 }

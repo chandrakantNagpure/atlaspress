@@ -1902,7 +1902,7 @@ const EntriesApp = () => {
                 placeholder: 'Search entries...',
                 value: searchTerm,
                 onChange: (e) => setSearchTerm(e.target.value),
-                style: { flex: 1, padding: '8px' }
+                style: { flex: 0.5, padding: '8px' }
             }),
             createElement(
                 'select',

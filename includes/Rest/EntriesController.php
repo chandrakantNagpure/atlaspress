@@ -104,6 +104,9 @@ class EntriesController {
 
         if(!$title) return new WP_Error('title_required','Title required',['status'=>422]);
 
+        // Auto-detect and create schema if content type has no fields
+        self::autoDetectSchema($type_id, $data);
+
         // Validate against content type schema
         $validation = self::validateEntry($type_id, $data);
         if(is_wp_error($validation)) return $validation;
@@ -267,5 +270,55 @@ class EntriesController {
         }
 
         return true;
+    }
+    
+    private static function autoDetectSchema($type_id, $data) {
+        global $wpdb;
+        $table = $wpdb->prefix.'atlaspress_content_types';
+        $type = $wpdb->get_row($wpdb->prepare("SELECT settings FROM $table WHERE id=%d", $type_id), ARRAY_A);
+        
+        if(!$type) return;
+        
+        $settings = json_decode($type['settings'], true) ?: [];
+        $existing_fields = $settings['fields'] ?? [];
+        
+        // Only auto-detect if no fields exist
+        if(!empty($existing_fields)) return;
+        
+        $detected_fields = [];
+        
+        foreach($data as $key => $value) {
+            $field_type = self::detectFieldType($value);
+            
+            $detected_fields[] = [
+                'name' => sanitize_key($key),
+                'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
+                'type' => $field_type,
+                'required' => false,
+                'id' => time() . rand(1000, 9999)
+            ];
+        }
+        
+        if(!empty($detected_fields)) {
+            $settings['fields'] = $detected_fields;
+            $settings['auto_detected'] = true;
+            $settings['detected_at'] = current_time('mysql');
+            
+            $wpdb->update(
+                $table,
+                ['settings' => wp_json_encode($settings)],
+                ['id' => $type_id]
+            );
+        }
+    }
+    
+    private static function detectFieldType($value) {
+        if(is_array($value)) return 'json';
+        if(filter_var($value, FILTER_VALIDATE_EMAIL)) return 'email';
+        if(filter_var($value, FILTER_VALIDATE_URL)) return 'url';
+        if(is_numeric($value)) return 'number';
+        if(preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) return 'date';
+        if(strlen($value) > 100) return 'textarea';
+        return 'text';
     }
 }
