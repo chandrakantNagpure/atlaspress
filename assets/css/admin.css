@@ -1,0 +1,761 @@
+/* Modern Color Palette */
+:root {
+    --primary: #5F7A61;
+    --primary-dark: #4a5f4c;
+    --primary-light: #7a9a7d;
+    --secondary: #9CA3AF;
+    --secondary-dark: #6b7280;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --success: #10b981;
+    --background: #FAFAF9;
+    --text: #1F2937;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Dashboard Layout Fix */
+.wrap {
+    margin: 20px 0 0 0;
+}
+
+.atlaspress-dashboard {
+    max-width: none;
+    margin: 0;
+    padding: 24px;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.dashboard-content {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr;
+}
+
+.dashboard-widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.dashboard-widget {
+    background: #fff;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+}
+
+.dashboard-widget h3 {
+    margin: 0 0 16px 0;
+    color: var(--gray-800);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.recent-entries-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.recent-entry {
+    padding: 12px;
+    background: var(--gray-50);
+    border-radius: 8px;
+    border-left: 3px solid var(--primary);
+}
+
+.recent-entry-title {
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+}
+
+.recent-entry-meta {
+    font-size: 12px;
+    color: var(--gray-500);
+}
+
+.atlaspress-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    transition: all 0.2s ease;
+}
+
+.atlaspress-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+}
+
+.atlaspress-form {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid var(--gray-200);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.atlaspress-grid {
+    display: grid;
+    gap: 24px;
+}
+
+.atlaspress-flex {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.atlaspress-loading {
+    text-align: center;
+    padding: 48px;
+    color: var(--gray-500);
+    font-size: 16px;
+}
+
+.atlaspress-empty-state {
+    text-align: center;
+    padding: 48px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+}
+
+.atlaspress-stat-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+    flex: 1;
+    min-width: 200px;
+    transition: all 0.2s ease;
+}
+
+.atlaspress-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.atlaspress-content-type-item {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.atlaspress-content-type-item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+    border-color: var(--primary-light);
+}
+
+.atlaspress-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.atlaspress-modal {
+    background: #fff;
+    padding: 32px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--gray-200);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.atlaspress-field-item {
+    background: var(--gray-50);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-200);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.atlaspress-field-item:hover {
+    background: var(--gray-100);
+    border-color: var(--primary-light);
+}
+
+.atlaspress-setup-wizard {
+    max-width: 700px;
+    margin: 48px auto;
+    padding: 0 24px;
+}
+
+.atlaspress-setup-wizard .button-large {
+    padding: 16px 32px;
+    height: auto;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.atlaspress-setup-wizard pre {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Consolas', 'SF Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--gray-700);
+}
+
+.atlaspress-setup-wizard ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.atlaspress-setup-wizard li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+}
+
+.atlaspress-setup-wizard li:last-child {
+    border-bottom: none;
+}
+
+.notice {
+    background: #fff;
+    border-left: 4px solid var(--secondary);
+    box-shadow: var(--shadow-sm);
+    border-radius: 0 8px 8px 0;
+}
+
+.notice-error {
+    border-left-color: var(--error);
+    background: #fef2f2;
+}
+
+.notice-success {
+    border-left-color: var(--success);
+    background: #ecfdf5;
+}
+
+.notice-warning {
+    border-left-color: var(--warning);
+    background: #fffbeb;
+}
+
+.notice-info {
+    border-left-color: var(--primary);
+    background: #eff6ff;
+}
+
+/* Modern Setup Wizard */
+.atlaspress-setup-wizard h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.setup-step {
+    margin: 48px 0;
+}
+
+.setup-step h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.setup-options {
+    display: grid;
+    gap: 16px;
+    margin: 40px 0;
+}
+
+.setup-option {
+    background: var(--background);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    padding: 32px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.setup-option::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 12px 0 0 12px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    transform: translateY(-50%);
+    height: 90%;
+}
+
+.setup-option:hover {
+    border-color: var(--primary);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.setup-option:hover::before {
+    opacity: 1;
+}
+
+.setup-option h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.setup-option p {
+    margin: 0;
+    color: var(--gray-600);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.setup-form {
+    background: var(--background);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: var(--shadow-md);
+}
+
+.setup-form label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 15px;
+}
+
+.setup-form input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 1px solid var(--gray-300);
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    background: #fff;
+    color: var(--text);
+}
+
+.setup-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(95, 122, 97, 0.1);
+}
+
+.setup-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: 40px;
+}
+
+.setup-buttons .button {
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.setup-buttons .button:not(.button-primary) {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border-color: var(--gray-300);
+}
+
+.setup-buttons .button:not(.button-primary):hover {
+    background: var(--gray-200);
+    transform: translateY(-1px);
+}
+
+.setup-buttons .button-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-color: var(--primary);
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.setup-buttons .button-primary:hover {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-dark);
+}
+
+.setup-buttons .button-primary:disabled {
+    background: var(--gray-400);
+    border-color: var(--gray-400);
+    transform: none;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Dashboard */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin: 32px 0;
+}
+
+.dashboard-stats > div {
+    background: var(--background);
+    padding: 32px;
+    border-radius: 16px;
+    border: 1px solid var(--gray-200);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-stats > div::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.dashboard-stats > div:nth-child(2)::before {
+    background: linear-gradient(135deg, var(--primary), var(--secondary))
+}
+
+.dashboard-stats > div:nth-child(3)::before {
+    background: linear-gradient(135deg, var(--primary), var(--secondary))
+}
+
+.dashboard-stats > div:nth-child(4)::before {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.dashboard-stats > div:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--primary-light);
+}
+
+.dashboard-stats > div > div:first-child {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+}
+
+.dashboard-stats > div > div:last-child {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--text);
+    margin-top: 8px;
+    line-height: 1;
+}
+
+/* Notifications */
+.notice {
+    border-radius: 8px;
+    border-left-width: 4px;
+    animation: slideIn 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Entries page improvements */
+.postbox {
+    border-radius: 12px;
+    border: 2px solid var(--gray-200);
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+    background: #fff;
+}
+
+.postbox:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+/* Button improvements */
+.button {
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    font-weight: 500;
+    border: 2px solid transparent;
+}
+
+.button:hover {
+    transform: translateY(-1px);
+}
+
+.button-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(95, 122, 97, 0.3);
+    font-weight: 600;
+}
+
+.button-primary:hover {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, #3d4f3f 100%);
+    box-shadow: 0 10px 15px -3px rgba(95, 122, 97, 0.4);
+    transform: translateY(-2px);
+}
+
+.button-secondary {
+    background: var(--gray-100);
+    border-color: var(--gray-300);
+    color: var(--gray-700);
+}
+
+.button-secondary:hover {
+    background: var(--gray-200);
+    border-color: var(--gray-400);
+}
+
+.button-link-delete {
+    color: var(--error);
+    border-color: transparent;
+}
+
+.button-link-delete:hover {
+    background: #fef2f2;
+    border-color: var(--error);
+    color: var(--error);
+}
+
+/* Form improvements */
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+select,
+textarea {
+    border: 2px solid var(--gray-300);
+    border-radius: 8px;
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(95, 122, 97, 0.1);
+}
+
+/* Loading states */
+.atlaspress-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.atlaspress-loading::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--gray-300);
+    border-top: 2px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Setup Preview Styles */
+.setup-preview {
+    background: var(--background);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: var(--shadow-md);
+    margin: 24px 0;
+}
+
+.setup-preview h3 {
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+}
+
+.setup-preview p {
+    color: var(--gray-600);
+    margin: 0 0 24px 0;
+    line-height: 1.6;
+}
+
+.setup-preview h4 {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    margin: 24px 0 12px 0;
+}
+
+.setup-preview ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+}
+
+.setup-preview li {
+    padding: 8px 0 8px 24px;
+    color: var(--gray-700);
+    border-bottom: 1px solid var(--gray-200);
+    position: relative;
+}
+
+.setup-preview li:before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.setup-preview li:last-child {
+    border-bottom: none;
+}
+
+.setup-preview pre {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Consolas', 'SF Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+    margin: 0;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .atlaspress-setup-wizard {
+        padding: 0 16px;
+        margin: 24px auto;
+    }
+    
+    .setup-form {
+        padding: 24px;
+    }
+    
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .setup-buttons {
+        flex-direction: column;
+    }
+    
+    .setup-buttons .button {
+        width: 100%;
+        justify-content: center;
+    }
+}
