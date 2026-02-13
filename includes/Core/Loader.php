@@ -9,6 +9,7 @@ use AtlasPress\Rest\ImportExportController;
 use AtlasPress\Rest\FileUploadController;
 use AtlasPress\Rest\GraphQLController;
 use AtlasPress\Rest\RelationshipController;
+use AtlasPress\Rest\FormGeneratorController;
 use AtlasPress\Admin\Pages\SetupWizard;
 use AtlasPress\Admin\Pages\Integration;
 
@@ -33,6 +34,7 @@ class Loader {
         add_action( 'rest_api_init', [ FileUploadController::class, 'register' ] );
         add_action( 'rest_api_init', [ GraphQLController::class, 'register' ] );
         add_action( 'rest_api_init', [ RelationshipController::class, 'register' ] );
+        add_action( 'rest_api_init', [ FormGeneratorController::class, 'register' ] );
         add_action( 'wp_ajax_atlaspress_setup', [ SetupWizard::class, 'handle_setup' ] );
         add_action( 'wp_ajax_atlaspress_reset_setup', [ SetupWizard::class, 'handle_reset' ] );
         add_action( 'wp_ajax_save_security_settings', [ self::class, 'handle_security_settings' ] );

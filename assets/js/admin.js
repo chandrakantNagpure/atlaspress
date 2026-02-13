@@ -1,4 +1,183 @@
 const { createElement, useState, useEffect } = wp.element;
+
+const Header = ({ notificationCount = 0, newEntries = [] }) => {
+    const [showNotifications, setShowNotifications] = useState(false);
+    const currentPage = new URLSearchParams(window.location.search).get('page');
+    
+    const menuItems = [
+        { label: 'Dashboard', page: 'atlaspress' },
+        { label: 'Content Types', page: 'atlaspress-content-types' },
+        { label: 'Entries', page: 'atlaspress-entries' },
+        { label: 'Security', page: 'atlaspress-security' },
+        { label: 'Webhooks', page: 'atlaspress-webhooks' }
+    ];
+    
+    return createElement(
+        'div',
+        { style: { background: '#fff', borderBottom: '1px solid #ddd', marginBottom: '20px', padding: '15px 0' } },
+        createElement(
+            'div',
+            { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+            createElement(
+                'div',
+                { style: { display: 'flex', gap: '30px', alignItems: 'center' } },
+                createElement('h1', { style: { margin: 0, fontSize: '20px', fontWeight: '600' } }, 'AtlasPress'),
+                createElement(
+                    'nav',
+                    { style: { display: 'flex', gap: '5px' } },
+                    menuItems.map(item =>
+                        createElement(
+                            'a',
+                            {
+                                key: item.page,
+                                href: `?page=${item.page}`,
+                                style: {
+                                    textDecoration: 'none',
+                                    color: currentPage === item.page ? '#5F7A61' : '#666',
+                                    fontWeight: currentPage === item.page ? '600' : '400',
+                                    padding: '6px 12px',
+                                    borderRadius: '4px',
+                                    background: currentPage === item.page ? '#f0f6f0' : 'transparent',
+                                    fontSize: '14px'
+                                }
+                            },
+                            item.label
+                        )
+                    )
+                )
+            ),
+            createElement(
+                'div',
+                {
+                    style: {
+                        position: 'relative',
+                        cursor: 'pointer',
+                        padding: '8px',
+                        borderRadius: '50%',
+                        background: notificationCount > 0 ? '#f5f5f5' : 'transparent'
+                    },
+                    onClick: () => setShowNotifications(!showNotifications)
+                },
+                createElement('span', { style: { fontSize: '18px' } }, '🔔'),
+                notificationCount > 0 && createElement(
+                    'span',
+                    {
+                        style: {
+                            position: 'absolute',
+                            top: '2px',
+                            right: '2px',
+                            background: '#ef4444',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: '18px',
+                            height: '18px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '10px',
+                            fontWeight: '600'
+                        }
+                    },
+                    notificationCount
+                ),
+                showNotifications && newEntries.length > 0 && createElement(
+                    'div',
+                    {
+                        style: {
+                            position: 'absolute',
+                            top: '45px',
+                            right: '0',
+                            background: 'white',
+                            border: '1px solid #ddd',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                            width: '320px',
+                            maxHeight: '400px',
+                            overflow: 'auto',
+                            zIndex: 10000
+                        }
+                    },
+                    createElement('div', { 
+                        style: { 
+                            padding: '12px 16px', 
+                            borderBottom: '1px solid #eee', 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center' 
+                        } 
+                    }, 
+                        createElement('span', { style: { fontWeight: '600' } }, 'New Submissions'),
+                        createElement('button', {
+                            onClick: (e) => {
+                                e.stopPropagation();
+                                if (window.clearNotifications) window.clearNotifications();
+                                setShowNotifications(false);
+                            },
+                            style: {
+                                background: 'none',
+                                border: 'none',
+                                color: '#2563eb',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                fontWeight: '500'
+                            }
+                        }, 'Mark all as read')
+                    ),
+                    newEntries.map((entry, index) =>
+                        createElement(
+                            'div',
+                            {
+                                key: index,
+                                style: {
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderBottom: index < newEntries.length - 1 ? '1px solid #f5f5f5' : 'none',
+                                    padding: '12px 16px',
+                                    gap: '8px'
+                                }
+                            },
+                            createElement(
+                                'a',
+                                {
+                                    href: `?page=atlaspress-entries&type=${entry.content_type_id}&highlight=${entry.id}`,
+                                    style: {
+                                        flex: 1,
+                                        textDecoration: 'none',
+                                        color: 'inherit'
+                                    },
+                                    onClick: () => {
+                                        setShowNotifications(false);
+                                        if (window.markNotificationRead) window.markNotificationRead(entry.id);
+                                    }
+                                },
+                                createElement('div', { style: { fontWeight: '600', fontSize: '14px', marginBottom: '4px' } }, entry.title),
+                                createElement('div', { style: { fontSize: '12px', color: '#666' } }, entry.content_type_name),
+                                createElement('div', { style: { fontSize: '11px', color: '#999', marginTop: '4px' } }, new Date(entry.created_at).toLocaleString())
+                            ),
+                            createElement('button', {
+                                onClick: (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (window.markNotificationRead) window.markNotificationRead(entry.id);
+                                },
+                                style: {
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#666',
+                                    cursor: 'pointer',
+                                    fontSize: '18px',
+                                    padding: '4px'
+                                },
+                                title: 'Mark as read'
+                            }, '✓')
+                        )
+                    )
+                )
+            )
+        )
+    );
+};
+
 const { createRoot } = wp.element;
 const apiFetch = wp.apiFetch;
 
@@ -293,22 +472,72 @@ const RelationshipField = ({ field, value, onChange, style }) => {
     );
 };
 
-const LiveUpdates = () => {
+const LiveUpdates = ({ onNotificationChange, onEntriesChange }) => {
+    const [lastCheck, setLastCheck] = useState(new Date().toISOString());
+    const [newEntries, setNewEntries] = useState([]);
+    const [readEntries, setReadEntries] = useState(new Set());
+
+    window.clearNotifications = () => {
+        const allIds = new Set([...readEntries, ...newEntries.map(e => e.id)]);
+        setReadEntries(allIds);
+        setNewEntries([]);
+        if(onNotificationChange) onNotificationChange(0);
+        if(onEntriesChange) onEntriesChange([]);
+    };
+
+    window.markNotificationRead = (entryId) => {
+        setReadEntries(prev => new Set([...prev, entryId]));
+        const updated = newEntries.filter(e => e.id !== entryId);
+        setNewEntries(updated);
+        if(onNotificationChange) onNotificationChange(updated.length);
+        if(onEntriesChange) onEntriesChange(updated);
+    };
+
     useEffect(() => {
-        const handleUpdate = (event) => {
-            const updates = event.detail;
-            updates.forEach(update => {
-                console.log('Live update:', update);
-                // Trigger UI refresh based on update type
-                if (update.event === 'atlaspress_entry_created') {
+        const pollInterval = setInterval(async () => {
+            try {
+                const response = await apiFetch({
+                    path: `/atlaspress/v1/entries/poll?last_check=${encodeURIComponent(lastCheck)}`
+                });
+                
+                if (response.count > 0) {
+                    const unreadEntries = response.new_entries.filter(e => !readEntries.has(e.id));
+                    if (unreadEntries.length > 0) {
+                        setNewEntries(prev => {
+                            const combined = [...prev, ...unreadEntries].filter((e, i, arr) => 
+                                arr.findIndex(x => x.id === e.id) === i
+                            );
+                            if(onNotificationChange) onNotificationChange(combined.length);
+                            if(onEntriesChange) onEntriesChange(combined);
+                            return combined;
+                        });
+                    } else if (unreadEntries.length === 0 && response.new_entries.length > 0) {
+                        if(onNotificationChange) onNotificationChange(0);
+                        if(onEntriesChange) onEntriesChange([]);
+                    }
+                    setLastCheck(response.last_check);
+                    
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        response.new_entries.forEach(entry => {
+                            new Notification('New Submission', {
+                                body: `${entry.content_type_name}: ${entry.title}`
+                            });
+                        });
+                    }
+                    
                     window.dispatchEvent(new CustomEvent('atlaspress-refresh-entries'));
                 }
-            });
-        };
+            } catch (error) {
+                console.error('Polling error:', error);
+            }
+        }, 5000);
 
-        window.addEventListener('atlaspress-update', handleUpdate);
-        return () => window.removeEventListener('atlaspress-update', handleUpdate);
-    }, []);
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+
+        return () => clearInterval(pollInterval);
+    }, [lastCheck, readEntries]);
 
     return null;
 };
@@ -665,16 +894,21 @@ const SecurityApp = () => {
 
     return createElement(
         'div',
-        { style: { maxWidth: '900px' } },
-        
-        notification && createElement(
+        null,
+        createElement(Header, { activePage: 'security', notificationCount: 0 }),
+        createElement(LiveUpdates, { onNotificationChange: () => {} }),
+        createElement(
             'div',
-            {
-                className: `notice notice-${notification.type === 'error' ? 'error' : 'success'}`,
-                style: { padding: '12px 15px', margin: '0 0 20px 0' }
-            },
-            createElement('p', null, notification.message)
-        ),
+            { style: { maxWidth: '900px', padding: '20px' } },
+            
+            notification && createElement(
+                'div',
+                {
+                    className: `notice notice-${notification.type === 'error' ? 'error' : 'success'}`,
+                    style: { padding: '12px 15px', margin: '0 0 20px 0' }
+                },
+                createElement('p', null, notification.message)
+            ),
 
         createElement('h2', null, 'API Security Settings'),
         
@@ -774,6 +1008,7 @@ const SecurityApp = () => {
                 'Learn More'
             )
         )
+        )
     );
 };
 
@@ -856,7 +1091,9 @@ const LoadingSpinner = () => createElement(
     'Loading...'
 );
 
-const DashboardApp = () => {
+const DashboardApp = () => { 
+    const [notificationCount, setNotificationCount] = useState(0);
+    const [newEntries, setNewEntries] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showResetModal, setShowResetModal] = useState(false);
@@ -963,8 +1200,8 @@ const DashboardApp = () => {
     if (loading) return createElement(LoadingSpinner);
     if (!stats) return createElement('div', null, 'Failed to load dashboard data.');
 
-    return createElement(
-        'div',
+    return createElement('div', null, createElement(Header, { notificationCount, newEntries }),
+        createElement('div',
         { className: 'atlaspress-dashboard' },
         
         notification && createElement(
@@ -1092,7 +1329,7 @@ const DashboardApp = () => {
                 createElement(TopTypesWidget, { types: stats.topContentTypes || [] })
             )
         )
-    );
+        ), createElement(LiveUpdates, { onNotificationChange: setNotificationCount, onEntriesChange: setNewEntries }))
 };
 
 const ContentTypesApp = () => {
@@ -1102,6 +1339,8 @@ const ContentTypesApp = () => {
     const [newTypeName, setNewTypeName] = useState('');
     const [error, setError] = useState('');
     const [editingSchema, setEditingSchema] = useState(null);
+    const [notificationCount, setNotificationCount] = useState(0);
+    const [newEntries, setNewEntries] = useState([]);
 
     const loadContentTypes = () => {
         setLoading(true);
@@ -1163,9 +1402,14 @@ const ContentTypesApp = () => {
 
     return createElement(
         'div',
-        { style: { display: 'grid', gap: '20px' } },
-        
-        editingSchema && createElement(SchemaBuilder, {
+        null,
+        createElement(Header, { activePage: 'content-types', notificationCount, newEntries }),
+        createElement(LiveUpdates, { onNotificationChange: setNotificationCount, onEntriesChange: setNewEntries }),
+        createElement(
+            'div',
+            { style: { display: 'grid', gap: '20px', padding: '20px' } },
+            
+            editingSchema && createElement(SchemaBuilder, {
             contentTypeId: editingSchema,
             allContentTypes: contentTypes,
             onClose: () => {
@@ -1271,6 +1515,7 @@ const ContentTypesApp = () => {
                         )
                     )
                 )
+        )
         )
     );
 };
@@ -1668,6 +1913,9 @@ const EntriesApp = () => {
     const [notification, setNotification] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [notificationCount, setNotificationCount] = useState(0);
+    const [newEntries, setNewEntries] = useState([]);
+    const [editingEntry, setEditingEntry] = useState(null);
 
     const showNotification = (message, type = 'success') => {
         setNotification({ message, type });
@@ -1675,6 +1923,19 @@ const EntriesApp = () => {
     };
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const typeParam = params.get('type');
+        const highlightParam = params.get('highlight');
+        const editParam = params.get('edit');
+        
+        if (typeParam) {
+            setSelectedType(typeParam);
+        }
+        
+        if (editParam) {
+            setEditingEntry(editParam);
+        }
+        
         apiFetch({ path: '/atlaspress/v1/content-types' })
             .then(response => {
                 setContentTypes(response.data || []);
@@ -1767,15 +2028,43 @@ const EntriesApp = () => {
 
     useEffect(() => {
         if (selectedType) loadEntries(selectedType);
+        
+        const params = new URLSearchParams(window.location.search);
+        const highlightParam = params.get('highlight');
+        if (highlightParam) {
+            setTimeout(() => {
+                const row = document.querySelector(`tr[data-entry-id="${highlightParam}"]`);
+                if (row) {
+                    row.style.background = '#fff3cd';
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(() => { row.style.background = ''; }, 3000);
+                }
+            }, 500);
+        }
     }, [selectedType, searchTerm, statusFilter]);
 
     if (loading) return createElement(LoadingSpinner);
 
     return createElement(
         'div',
-        { style: { display: 'grid', gap: '20px' } },
-        
-        notification && createElement(
+        null,
+        createElement(Header, { activePage: 'entries', notificationCount, newEntries }),
+        createElement(LiveUpdates, { onNotificationChange: setNotificationCount, onEntriesChange: setNewEntries }),
+        createElement(
+            'div',
+            { style: { display: 'grid', gap: '20px', padding: '20px' } },
+            
+            editingEntry && createElement(EntryForm, {
+                contentTypeId: selectedType,
+                entryId: editingEntry,
+                onClose: () => {
+                    setEditingEntry(null);
+                    window.history.pushState({}, '', '?page=atlaspress-entries&type=' + selectedType);
+                    loadEntries(selectedType);
+                }
+            }),
+            
+            notification && createElement(
             'div',
             {
                 className: `notice notice-${notification.type === 'error' ? 'error' : 'success'}`,
@@ -1808,7 +2097,7 @@ const EntriesApp = () => {
         createElement(
             'div',
             { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' } },
-            createElement('h2', { style: { margin: 0 } }, 'Form Submissions'),
+            createElement('h2', { style: { margin: 0 } }, 'Entries'),
             createElement(
                 'div',
                 { style: { display: 'flex', gap: '10px', alignItems: 'center' } },
@@ -1819,7 +2108,7 @@ const EntriesApp = () => {
                         onChange: (e) => setSelectedType(e.target.value),
                         style: { padding: '8px 12px', borderRadius: '4px' }
                     },
-                    createElement('option', { value: '' }, 'Select Form Type'),
+                    createElement('option', { value: '' }, 'Select Content Type'),
                     contentTypes.map(type => 
                         createElement('option', { key: type.id, value: type.id }, type.name)
                     )
@@ -2035,7 +2324,7 @@ fetch('/wp-json/atlaspress/v1/content-types/${selectedType}/entries', {
                             entries.map(entry =>
                                 createElement(
                                     'tr',
-                                    { key: entry.id },
+                                    { key: entry.id, 'data-entry-id': entry.id },
                                     createElement(
                                         'th',
                                         { className: 'check-column' },
@@ -2074,15 +2363,9 @@ fetch('/wp-json/atlaspress/v1/content-types/${selectedType}/entries', {
                                                 {
                                                     className: 'button button-small',
                                                     onClick: () => {
-                                                        apiFetch({
-                                                            path: `/atlaspress/v1/entries/${entry.id}/duplicate`,
-                                                            method: 'POST'
-                                                        }).then(() => {
-                                                            loadEntries(selectedType, pagination.page);
-                                                            showNotification('Entry duplicated');
-                                                        });
+                                                        window.location.href = `?page=atlaspress-entries&type=${selectedType}&edit=${entry.id}`;
                                                     },
-                                                    title: 'Duplicate'
+                                                    title: 'Edit'
                                                 },
                                                 '📋'
                                             ),
@@ -2106,6 +2389,7 @@ fetch('/wp-json/atlaspress/v1/content-types/${selectedType}/entries', {
             { className: 'postbox', style: { padding: '40px', textAlign: 'center' } },
             createElement('h3', { style: { color: '#666' } }, 'Select a form type to view submissions'),
             createElement('p', null, 'Choose a content type from the dropdown above to see form submissions from your frontend applications.')
+        )
         )
     );
 };
@@ -2131,7 +2415,6 @@ document.addEventListener('DOMContentLoaded', () => {
         root.render(createElement(
             'div',
             null,
-            createElement(LiveUpdates),
             createElement(DashboardApp)
         ));
     }
@@ -2139,24 +2422,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const contentTypesRoot = document.getElementById('atlaspress-content-types-app');
     if (contentTypesRoot) {
         const root = createRoot(contentTypesRoot);
-        root.render(createElement(
-            'div',
-            null,
-            createElement(LiveUpdates),
-            createElement(ContentTypesApp)
-        ));
+        root.render(createElement(ContentTypesApp));
     }
 
     const entriesRoot = document.getElementById('atlaspress-entries-app');
     if (entriesRoot) {
         const root = createRoot(entriesRoot);
-        root.render(createElement(
-            'div',
-            null,
-            createElement(LiveUpdates),
-            createElement(EntriesApp)
-        ));
+        root.render(createElement(EntriesApp));
     }
 });
 
 
+
+
+
+
+
+
+
+
+
+
+window.atlaspressHeader = Header;

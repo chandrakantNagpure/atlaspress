@@ -14,10 +14,23 @@ class SecuritySettings {
         $allowed_origins = get_option('atlaspress_allowed_origins', []);
         $webhook_secret = get_option('atlaspress_webhook_secret', '');
         
-        echo '<div class="wrap">';
-        echo '<h1>Security Settings</h1>';
-        echo '<div id="atlaspress-security-app" data-keys="' . esc_attr(wp_json_encode(array_keys($api_keys))) . '" data-origins="' . esc_attr(wp_json_encode($allowed_origins)) . '" data-secret="' . esc_attr($webhook_secret ? 'Set' : 'Not Set') . '"></div>';
-        echo '</div>';
+        ?>
+        <div class="wrap">
+            <h1>Security Settings</h1>
+            
+            <form method="post" style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <input type="hidden" name="action" value="save_security_settings">
+                
+                <h2>🔑 API Keys</h2>
+                <div id="atlaspress-security-app" 
+                     data-keys="<?php echo esc_attr(wp_json_encode(array_keys($api_keys))); ?>" 
+                     data-origins="<?php echo esc_attr(wp_json_encode($allowed_origins)); ?>" 
+                     data-secret="<?php echo esc_attr($webhook_secret ? 'Set' : 'Not Set'); ?>"></div>
+                
+                <button type="submit" class="button button-primary">Save Settings</button>
+            </form>
+        </div>
+        <?php
     }
     
     private static function save_settings() {

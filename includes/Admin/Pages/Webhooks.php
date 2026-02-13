@@ -7,16 +7,19 @@ class Webhooks {
         $webhooks = get_option('atlaspress_webhooks', []);
         ?>
         <div class="wrap">
-            <h1>Webhooks</h1>
-            <p>Trigger HTTP requests when entries are created, updated, or deleted.</p>
-            
-            <div id="webhooks-app"></div>
+            <div id="atlaspress-webhooks-app"></div>
         </div>
         
         <script>
-        const WebhooksApp = () => {
-            const [webhooks, setWebhooks] = React.useState(<?php echo wp_json_encode($webhooks); ?>);
-            const [newWebhook, setNewWebhook] = React.useState({ event: 'atlaspress_entry_created', url: '', secret: '' });
+        document.addEventListener('DOMContentLoaded', () => {
+            const { createElement, useState } = wp.element;
+            const { createRoot } = wp.element;
+            
+            const Header = window.atlaspressHeader || (() => null);
+            
+            const WebhooksApp = () => {
+            const [webhooks, setWebhooks] = useState(<?php echo wp_json_encode($webhooks); ?>);
+            const [newWebhook, setNewWebhook] = useState({ event: 'atlaspress_entry_created', url: '', secret: '' });
             
             const events = [
                 { value: 'atlaspress_entry_created', label: 'Entry Created' },
@@ -61,25 +64,29 @@ class Webhooks {
                 }).then(() => setWebhooks(updated));
             };
             
-            return React.createElement('div', null,
-                React.createElement('div', { className: 'postbox', style: { padding: '20px', marginTop: '20px' } },
-                    React.createElement('h2', null, 'Add Webhook'),
-                    React.createElement('table', { className: 'form-table' },
-                        React.createElement('tbody', null,
-                            React.createElement('tr', null,
-                                React.createElement('th', null, 'Event'),
-                                React.createElement('td', null,
-                                    React.createElement('select', {
+            return createElement('div', null,
+                createElement(Header, { activePage: 'webhooks', notificationCount: 0 }),
+                createElement('div', { style: { padding: '20px' } },
+                    createElement('h1', { style: { marginBottom: '20px' } }, 'Webhooks'),
+                    createElement('p', { style: { marginBottom: '20px' } }, 'Trigger HTTP requests when entries are created, updated, or deleted.'),
+                createElement('div', { className: 'postbox', style: { padding: '20px', marginTop: '20px' } },
+                    createElement('h2', null, 'Add Webhook'),
+                    createElement('table', { className: 'form-table' },
+                        createElement('tbody', null,
+                            createElement('tr', null,
+                                createElement('th', null, 'Event'),
+                                createElement('td', null,
+                                    createElement('select', {
                                         value: newWebhook.event,
                                         onChange: (e) => setNewWebhook({ ...newWebhook, event: e.target.value }),
                                         style: { width: '100%' }
-                                    }, events.map(e => React.createElement('option', { key: e.value, value: e.value }, e.label)))
+                                    }, events.map(e => createElement('option', { key: e.value, value: e.value }, e.label)))
                                 )
                             ),
-                            React.createElement('tr', null,
-                                React.createElement('th', null, 'URL *'),
-                                React.createElement('td', null,
-                                    React.createElement('input', {
+                            createElement('tr', null,
+                                createElement('th', null, 'URL *'),
+                                createElement('td', null,
+                                    createElement('input', {
                                         type: 'url',
                                         value: newWebhook.url,
                                         onChange: (e) => setNewWebhook({ ...newWebhook, url: e.target.value }),
@@ -88,10 +95,10 @@ class Webhooks {
                                     })
                                 )
                             ),
-                            React.createElement('tr', null,
-                                React.createElement('th', null, 'Secret (Optional)'),
-                                React.createElement('td', null,
-                                    React.createElement('input', {
+                            createElement('tr', null,
+                                createElement('th', null, 'Secret (Optional)'),
+                                createElement('td', null,
+                                    createElement('input', {
                                         type: 'text',
                                         value: newWebhook.secret,
                                         onChange: (e) => setNewWebhook({ ...newWebhook, secret: e.target.value }),
@@ -102,31 +109,31 @@ class Webhooks {
                             )
                         )
                     ),
-                    React.createElement('button', { className: 'button button-primary', onClick: addWebhook }, 'Add Webhook')
+                    createElement('button', { className: 'button button-primary', onClick: addWebhook }, 'Add Webhook')
                 ),
                 
-                React.createElement('div', { className: 'postbox', style: { padding: '20px', marginTop: '20px' } },
-                    React.createElement('h2', null, 'Active Webhooks'),
+                createElement('div', { className: 'postbox', style: { padding: '20px', marginTop: '20px' } },
+                    createElement('h2', null, 'Active Webhooks'),
                     Object.keys(webhooks).length === 0 
-                        ? React.createElement('p', null, 'No webhooks configured.')
+                        ? createElement('p', null, 'No webhooks configured.')
                         : Object.entries(webhooks).map(([event, hooks]) =>
-                            React.createElement('div', { key: event, style: { marginBottom: '20px' } },
-                                React.createElement('h3', null, events.find(e => e.value === event)?.label || event),
-                                React.createElement('table', { className: 'wp-list-table widefat fixed striped' },
-                                    React.createElement('thead', null,
-                                        React.createElement('tr', null,
-                                            React.createElement('th', null, 'URL'),
-                                            React.createElement('th', { style: { width: '100px' } }, 'Secret'),
-                                            React.createElement('th', { style: { width: '80px' } }, 'Actions')
+                            createElement('div', { key: event, style: { marginBottom: '20px' } },
+                                createElement('h3', null, events.find(e => e.value === event)?.label || event),
+                                createElement('table', { className: 'wp-list-table widefat fixed striped' },
+                                    createElement('thead', null,
+                                        createElement('tr', null,
+                                            createElement('th', null, 'URL'),
+                                            createElement('th', { style: { width: '100px' } }, 'Secret'),
+                                            createElement('th', { style: { width: '80px' } }, 'Actions')
                                         )
                                     ),
-                                    React.createElement('tbody', null,
+                                    createElement('tbody', null,
                                         hooks.map((hook, index) =>
-                                            React.createElement('tr', { key: index },
-                                                React.createElement('td', null, React.createElement('code', null, hook.url)),
-                                                React.createElement('td', null, hook.secret ? '✓ Set' : '—'),
-                                                React.createElement('td', null,
-                                                    React.createElement('button', {
+                                            createElement('tr', { key: index },
+                                                createElement('td', null, createElement('code', null, hook.url)),
+                                                createElement('td', null, hook.secret ? '✓ Set' : '—'),
+                                                createElement('td', null,
+                                                    createElement('button', {
                                                         className: 'button button-small',
                                                         onClick: () => deleteWebhook(event, index)
                                                     }, 'Delete')
@@ -138,10 +145,13 @@ class Webhooks {
                             )
                         )
                 )
+                )
             );
         };
         
-        ReactDOM.render(React.createElement(WebhooksApp), document.getElementById('webhooks-app'));
+        const root = createRoot(document.getElementById('atlaspress-webhooks-app'));
+        root.render(createElement(WebhooksApp));
+        });
         </script>
         <?php
     }

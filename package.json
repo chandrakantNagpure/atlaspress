@@ -1,0 +1,12 @@
+{
+  "name": "atlaspress-scraper",
+  "version": "1.0.0",
+  "description": "Puppeteer-based form scraper for AtlasPress",
+  "main": "scraper-service.js",
+  "scripts": {
+    "start": "node scraper-service.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  }
+}
