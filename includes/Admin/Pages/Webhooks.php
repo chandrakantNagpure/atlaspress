@@ -5,6 +5,16 @@ class Webhooks {
     
     public static function render() {
         $webhooks = get_option('atlaspress_webhooks', []);
+        if(!is_array($webhooks)) {
+            $webhooks = [];
+        }
+
+        $retry_log = \AtlasPress\Core\Webhooks::get_retry_log();
+        if(!is_array($retry_log)) {
+            $retry_log = [];
+        }
+
+        $is_pro_active = \AtlasPress\Core\ProVersion::is_pro_active();
         ?>
         <div class="wrap">
             <div id="atlaspress-webhooks-app"></div>
@@ -19,7 +29,9 @@ class Webhooks {
             
             const WebhooksApp = () => {
             const [webhooks, setWebhooks] = useState(<?php echo wp_json_encode($webhooks); ?>);
+            const [retryLog] = useState(<?php echo wp_json_encode(array_slice($retry_log, -50)); ?>);
             const [newWebhook, setNewWebhook] = useState({ event: 'atlaspress_entry_created', url: '', secret: '' });
+            const isProActive = <?php echo $is_pro_active ? 'true' : 'false'; ?>;
             
             const events = [
                 { value: 'atlaspress_entry_created', label: 'Entry Created' },
@@ -144,6 +156,40 @@ class Webhooks {
                                 )
                             )
                         )
+                ),
+                createElement('div', { className: 'postbox', style: { padding: '20px', marginTop: '20px' } },
+                    createElement('h2', null, 'Delivery Retry Log'),
+                    !isProActive
+                        ? createElement('p', { style: { margin: 0, color: '#6b7280' } }, 'Advanced webhook retries are available with an active Pro license.')
+                        : retryLog.length === 0
+                            ? createElement('p', { style: { margin: 0 } }, 'No retry events recorded yet.')
+                            : createElement('table', { className: 'wp-list-table widefat fixed striped' },
+                                createElement('thead', null,
+                                    createElement('tr', null,
+                                        createElement('th', { style: { width: '170px' } }, 'Recorded'),
+                                        createElement('th', { style: { width: '180px' } }, 'Event'),
+                                        createElement('th', null, 'URL'),
+                                        createElement('th', { style: { width: '70px' } }, 'Try'),
+                                        createElement('th', { style: { width: '90px' } }, 'Status'),
+                                        createElement('th', { style: { width: '220px' } }, 'Message')
+                                    )
+                                ),
+                                createElement('tbody', null,
+                                    retryLog
+                                        .slice()
+                                        .reverse()
+                                        .map((item, index) =>
+                                            createElement('tr', { key: index },
+                                                createElement('td', null, item.recorded_at || 'n/a'),
+                                                createElement('td', null, item.event || 'unknown'),
+                                                createElement('td', null, createElement('code', null, item.url || '')),
+                                                createElement('td', null, item.attempt || 1),
+                                                createElement('td', null, item.status || 'unknown'),
+                                                createElement('td', null, item.message || '')
+                                            )
+                                        )
+                                )
+                            )
                 )
                 )
             );

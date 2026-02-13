@@ -1,6 +1,8 @@
 <?php
 namespace AtlasPress\Rest;
 
+use AtlasPress\Core\Permissions;
+
 class FormGeneratorController {
     
     public static function register() {
@@ -12,7 +14,7 @@ class FormGeneratorController {
         register_rest_route('atlaspress/v1', '/entries/poll', [
             'methods' => 'GET',
             'callback' => [$this, 'poll_entries'],
-            'permission_callback' => '__return_true'
+            'permission_callback' => [Permissions::class, 'can_edit_entries']
         ]);
     }
     

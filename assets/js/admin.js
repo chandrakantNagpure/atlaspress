@@ -3,25 +3,58 @@ const { createElement, useState, useEffect } = wp.element;
 const Header = ({ notificationCount = 0, newEntries = [] }) => {
     const [showNotifications, setShowNotifications] = useState(false);
     const currentPage = new URLSearchParams(window.location.search).get('page');
-    
+    const rawProStatus = window?.atlaspress_settings?.is_pro_active;
+    const isProAccount = rawProStatus === true || rawProStatus === 1 || rawProStatus === '1';
+
     const menuItems = [
         { label: 'Dashboard', page: 'atlaspress' },
         { label: 'Content Types', page: 'atlaspress-content-types' },
         { label: 'Entries', page: 'atlaspress-entries' },
         { label: 'Security', page: 'atlaspress-security' },
-        { label: 'Webhooks', page: 'atlaspress-webhooks' }
+        { label: 'Webhooks', page: 'atlaspress-webhooks' },
+        { label: 'Pro License \u2B50', page: 'atlaspress-pro' }
     ];
-    
+
+    const headerShellStyle = isProAccount
+        ? {
+            background: 'linear-gradient(120deg, #f8fafc 0%, #eef2f7 58%, #e6edf6 100%)',
+            borderBottom: '1px solid #d7e0ea',
+            marginBottom: '20px',
+            padding: '15px 0',
+            boxShadow: 'inset 0 -1px 0 rgba(148,163,184,0.2)'
+        }
+        : {
+            background: '#fff',
+            borderBottom: '1px solid #ddd',
+            marginBottom: '20px',
+            padding: '15px 0'
+        };
+
     return createElement(
         'div',
-        { style: { background: '#fff', borderBottom: '1px solid #ddd', marginBottom: '20px', padding: '15px 0' } },
+        { className: isProAccount ? 'atlaspress-header atlaspress-header-pro' : 'atlaspress-header', style: headerShellStyle },
         createElement(
             'div',
             { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
             createElement(
                 'div',
                 { style: { display: 'flex', gap: '30px', alignItems: 'center' } },
-                createElement('h1', { style: { margin: 0, fontSize: '20px', fontWeight: '600' } }, 'AtlasPress'),
+                createElement(
+                    'h1',
+                    {
+                        style: {
+                            margin: 0,
+                            fontSize: '20px',
+                            fontWeight: '600',
+                            color: isProAccount ? '#0f172a' : '#111827',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }
+                    },
+                    'AtlasPress',
+                    isProAccount && createElement('span', { className: 'atlaspress-pro-pill' }, 'PRO')
+                ),
                 createElement(
                     'nav',
                     { style: { display: 'flex', gap: '5px' } },
@@ -33,11 +66,15 @@ const Header = ({ notificationCount = 0, newEntries = [] }) => {
                                 href: `?page=${item.page}`,
                                 style: {
                                     textDecoration: 'none',
-                                    color: currentPage === item.page ? '#5F7A61' : '#666',
+                                    color: currentPage === item.page
+                                        ? (isProAccount ? '#0f172a' : '#5F7A61')
+                                        : (isProAccount ? '#475569' : '#666'),
                                     fontWeight: currentPage === item.page ? '600' : '400',
                                     padding: '6px 12px',
                                     borderRadius: '4px',
-                                    background: currentPage === item.page ? '#f0f6f0' : 'transparent',
+                                    background: currentPage === item.page
+                                        ? (isProAccount ? '#ffffff' : '#f0f6f0')
+                                        : 'transparent',
                                     fontSize: '14px'
                                 }
                             },
@@ -54,11 +91,15 @@ const Header = ({ notificationCount = 0, newEntries = [] }) => {
                         cursor: 'pointer',
                         padding: '8px',
                         borderRadius: '50%',
-                        background: notificationCount > 0 ? '#f5f5f5' : 'transparent'
+                        background: notificationCount > 0
+                            ? (isProAccount ? '#ffffff' : '#f5f5f5')
+                            : 'transparent'
                     },
                     onClick: () => setShowNotifications(!showNotifications)
                 },
-                createElement('span', { style: { fontSize: '18px' } }, '🔔'),
+                isProAccount
+                    ? createElement('span', { className: 'dashicons dashicons-bell', style: { fontSize: '18px', color: '#0f172a' } })
+                    : createElement('span', { style: { fontSize: '18px' } }, '\uD83D\uDD14'),
                 notificationCount > 0 && createElement(
                     'span',
                     {
@@ -67,7 +108,7 @@ const Header = ({ notificationCount = 0, newEntries = [] }) => {
                             top: '2px',
                             right: '2px',
                             background: '#ef4444',
-                            color: 'white',
+                            color: '#ffffff',
                             borderRadius: '50%',
                             width: '18px',
                             height: '18px',
@@ -87,7 +128,7 @@ const Header = ({ notificationCount = 0, newEntries = [] }) => {
                             position: 'absolute',
                             top: '45px',
                             right: '0',
-                            background: 'white',
+                            background: '#ffffff',
                             border: '1px solid #ddd',
                             borderRadius: '8px',
                             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -97,15 +138,15 @@ const Header = ({ notificationCount = 0, newEntries = [] }) => {
                             zIndex: 10000
                         }
                     },
-                    createElement('div', { 
-                        style: { 
-                            padding: '12px 16px', 
-                            borderBottom: '1px solid #eee', 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center' 
-                        } 
-                    }, 
+                    createElement('div', {
+                        style: {
+                            padding: '12px 16px',
+                            borderBottom: '1px solid #eee',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }
+                    },
                         createElement('span', { style: { fontWeight: '600' } }, 'New Submissions'),
                         createElement('button', {
                             onClick: (e) => {
@@ -165,11 +206,12 @@ const Header = ({ notificationCount = 0, newEntries = [] }) => {
                                     border: 'none',
                                     color: '#666',
                                     cursor: 'pointer',
-                                    fontSize: '18px',
+                                    fontSize: '13px',
+                                    fontWeight: '600',
                                     padding: '4px'
                                 },
                                 title: 'Mark as read'
-                            }, '✓')
+                            }, isProAccount ? 'OK' : '\u2713')
                         )
                     )
                 )
@@ -814,19 +856,186 @@ const response = await fetch('/wp-json/atlaspress/v1/content-types/1/entries', {
 
 const SecurityApp = () => {
     const [apiKeys, setApiKeys] = useState([]);
+    const [apiKeyDetails, setApiKeyDetails] = useState([]);
+    const [constraintDrafts, setConstraintDrafts] = useState({});
+    const [apiKeyScopes, setApiKeyScopes] = useState({});
     const [origins, setOrigins] = useState('');
     const [newKeyName, setNewKeyName] = useState('');
+    const [selectedScopes, setSelectedScopes] = useState(['entries.read', 'entries.write']);
+    const [newKeyExpiresAt, setNewKeyExpiresAt] = useState('');
+    const [newKeyAllowedIps, setNewKeyAllowedIps] = useState('');
     const [generatedKey, setGeneratedKey] = useState('');
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null);
+    const [requireSignedFormCapture, setRequireSignedFormCapture] = useState(true);
+    const [requireSignedHubspotWebhook, setRequireSignedHubspotWebhook] = useState(true);
+    const [allowLegacySignedIngest, setAllowLegacySignedIngest] = useState(false);
+    const [rateLimitPublic, setRateLimitPublic] = useState('300');
+    const [rateLimitPrivate, setRateLimitPrivate] = useState('100');
+    const [rateLimitOverrides, setRateLimitOverrides] = useState('');
+    const [isProActive, setIsProActive] = useState(false);
+    const fallbackScopeDefinitions = {
+        'entries.read': { label: 'Entries Read', description: 'Read entries and query data' },
+        'entries.write': { label: 'Entries Write', description: 'Create and update entries' },
+        'entries.delete': { label: 'Entries Delete', description: 'Delete entries and files' },
+        'types.manage': { label: 'Types Manage', description: 'Manage content types and schemas' },
+        'dashboard.read': { label: 'Dashboard Read', description: 'Access dashboard summaries' }
+    };
+    const scopeDefinitions = Object.keys(apiKeyScopes || {}).length > 0 ? apiKeyScopes : fallbackScopeDefinitions;
+
+    const normalizeRateLimitValue = (value, fallback) => {
+        const parsed = Number.parseInt(String(value || '').trim(), 10);
+        if (Number.isNaN(parsed)) {
+            return fallback;
+        }
+
+        return Math.min(100000, Math.max(1, parsed));
+    };
+
+    const normalizeRateLimitRules = (rules) => {
+        const source = (rules && typeof rules === 'object') ? rules : {};
+        const routeOverrides = Array.isArray(source.route_overrides) ? source.route_overrides : [];
+
+        return {
+            public: normalizeRateLimitValue(source.public, 300),
+            private: normalizeRateLimitValue(source.private, 100),
+            route_overrides: routeOverrides
+                .filter((entry) => entry && typeof entry === 'object')
+                .map((entry) => ({
+                    pattern: String(entry.pattern || '').trim(),
+                    limit: normalizeRateLimitValue(entry.limit, 100)
+                }))
+                .filter((entry) => entry.pattern.startsWith('/atlaspress/v1/'))
+                .slice(0, 25)
+        };
+    };
+
+    const routeOverridesToText = (routeOverrides) => {
+        if (!Array.isArray(routeOverrides) || routeOverrides.length === 0) {
+            return '';
+        }
+
+        return routeOverrides
+            .map((entry) => `${entry.pattern}=${entry.limit}`)
+            .join('\n');
+    };
+
+    const parseRouteOverridesText = (text) => {
+        if (typeof text !== 'string') {
+            return [];
+        }
+
+        const parsed = [];
+        text.split(/\r?\n/).forEach((line) => {
+            const value = line.trim();
+            if (!value) {
+                return;
+            }
+
+            const match = value.match(/^(.+?)\s*[:=]\s*(\d+)$/);
+            if (!match) {
+                return;
+            }
+
+            const pattern = match[1].trim();
+            if (!pattern.startsWith('/atlaspress/v1/')) {
+                return;
+            }
+
+            parsed.push({
+                pattern,
+                limit: normalizeRateLimitValue(match[2], 100)
+            });
+        });
+
+        return parsed.slice(0, 25);
+    };
+
+    const normalizeDateTimeLocal = (value) => {
+        if (typeof value !== 'string') {
+            return '';
+        }
+
+        const trimmed = value.trim();
+        if (!trimmed) {
+            return '';
+        }
+
+        return trimmed.replace(' ', 'T').slice(0, 16);
+    };
+
+    const normalizeAllowedIpsText = (allowedIps) => {
+        if (!Array.isArray(allowedIps) || allowedIps.length === 0) {
+            return '';
+        }
+
+        return allowedIps
+            .map((item) => String(item || '').trim())
+            .filter(Boolean)
+            .join('\n');
+    };
+
+    const buildConstraintDrafts = (details) => {
+        if (!Array.isArray(details)) {
+            return {};
+        }
+
+        const drafts = {};
+        details.forEach((entry) => {
+            if (!entry || !entry.name) {
+                return;
+            }
+
+            drafts[entry.name] = {
+                expiresAt: normalizeDateTimeLocal(entry.expires_at || ''),
+                allowedIps: normalizeAllowedIpsText(entry.allowed_ips || [])
+            };
+        });
+
+        return drafts;
+    };
+
+    const applyApiKeyDetails = (details) => {
+        const normalized = Array.isArray(details) ? details : [];
+        setApiKeyDetails(normalized);
+        setApiKeys(normalized.map((entry) => entry.name));
+        setConstraintDrafts(buildConstraintDrafts(normalized));
+    };
 
     useEffect(() => {
         const root = document.getElementById('atlaspress-security-app');
         if (root) {
             const keys = JSON.parse(root.dataset.keys || '[]');
+            const keyDetails = JSON.parse(root.dataset.keyDetails || '[]');
+            const keyScopes = JSON.parse(root.dataset.keyScopes || '{}');
             const savedOrigins = JSON.parse(root.dataset.origins || '[]');
-            setApiKeys(keys);
-            setOrigins(savedOrigins.join('\n'));
+            const signaturePolicy = JSON.parse(root.dataset.signaturePolicy || '{}');
+            const rateLimitRules = JSON.parse(root.dataset.rateLimitRules || '{}');
+            const proActive = String(root.dataset.isProActive || '') === '1';
+            const defaultPolicy = {
+                require_signed_form_capture: true,
+                require_signed_hubspot_webhook: true,
+                allow_legacy_signed_ingest: false
+            };
+            const policy = { ...defaultPolicy, ...(signaturePolicy || {}) };
+            const normalizedRateLimitRules = normalizeRateLimitRules(rateLimitRules);
+
+            if (Array.isArray(keyDetails) && keyDetails.length > 0) {
+                applyApiKeyDetails(keyDetails);
+            } else {
+                setApiKeys(Array.isArray(keys) ? keys : []);
+                setApiKeyDetails([]);
+                setConstraintDrafts({});
+            }
+            setApiKeyScopes((keyScopes && typeof keyScopes === 'object') ? keyScopes : {});
+            setOrigins(Array.isArray(savedOrigins) ? savedOrigins.join('\n') : '');
+            setRequireSignedFormCapture(Boolean(policy.require_signed_form_capture));
+            setRequireSignedHubspotWebhook(Boolean(policy.require_signed_hubspot_webhook));
+            setAllowLegacySignedIngest(Boolean(policy.allow_legacy_signed_ingest));
+            setRateLimitPublic(String(normalizedRateLimitRules.public));
+            setRateLimitPrivate(String(normalizedRateLimitRules.private));
+            setRateLimitOverrides(routeOverridesToText(normalizedRateLimitRules.route_overrides));
+            setIsProActive(proActive);
         }
     }, []);
 
@@ -835,9 +1044,71 @@ const SecurityApp = () => {
         setTimeout(() => setNotification(null), 3000);
     };
 
+    const toggleScope = (scope) => {
+        if (!scope) return;
+
+        setSelectedScopes((prev) => {
+            if (prev.includes(scope)) {
+                return prev.filter((item) => item !== scope);
+            }
+            return [...prev, scope];
+        });
+    };
+
+    const getConstraintDraft = (entry) => {
+        if (!entry || !entry.name) {
+            return { expiresAt: '', allowedIps: '' };
+        }
+
+        return constraintDrafts[entry.name] || {
+            expiresAt: normalizeDateTimeLocal(entry.expires_at || ''),
+            allowedIps: normalizeAllowedIpsText(entry.allowed_ips || [])
+        };
+    };
+
+    const updateConstraintDraft = (entry, field, value) => {
+        if (!entry || !entry.name || !field) {
+            return;
+        }
+
+        setConstraintDrafts((prev) => {
+            const existing = prev[entry.name] || {
+                expiresAt: normalizeDateTimeLocal(entry.expires_at || ''),
+                allowedIps: normalizeAllowedIpsText(entry.allowed_ips || [])
+            };
+
+            return {
+                ...prev,
+                [entry.name]: {
+                    ...existing,
+                    [field]: value
+                }
+            };
+        });
+    };
+
+    const resetConstraintDraft = (entry) => {
+        if (!entry || !entry.name) {
+            return;
+        }
+
+        setConstraintDrafts((prev) => ({
+            ...prev,
+            [entry.name]: {
+                expiresAt: normalizeDateTimeLocal(entry.expires_at || ''),
+                allowedIps: normalizeAllowedIpsText(entry.allowed_ips || [])
+            }
+        }));
+    };
+
     const generateApiKey = async () => {
         if (!newKeyName.trim()) {
             showNotification('Please enter a key name', 'error');
+            return;
+        }
+
+        if (selectedScopes.length === 0) {
+            showNotification('Select at least one scope for the API key', 'error');
             return;
         }
 
@@ -845,8 +1116,12 @@ const SecurityApp = () => {
         try {
             const formData = new FormData();
             formData.append('action', 'save_security_settings');
+            formData.append('nonce', atlaspress_ajax.security_nonce || '');
             formData.append('generate_api_key', '1');
             formData.append('api_key_name', newKeyName);
+            formData.append('api_key_scopes', JSON.stringify(selectedScopes));
+            formData.append('api_key_expires_at', newKeyExpiresAt);
+            formData.append('api_key_allowed_ips', newKeyAllowedIps);
 
             const response = await fetch(atlaspress_ajax.ajaxurl, {
                 method: 'POST',
@@ -856,9 +1131,16 @@ const SecurityApp = () => {
             const result = await response.json();
             if (result.success) {
                 setGeneratedKey(result.data.api_key);
-                setApiKeys([...apiKeys, newKeyName]);
+                const details = Array.isArray(result?.data?.api_key_details) ? result.data.api_key_details : [];
+                if (details.length > 0) {
+                    applyApiKeyDetails(details);
+                } else {
+                    setApiKeys([...apiKeys, newKeyName]);
+                }
                 setNewKeyName('');
-                showNotification('API Key generated! Copy it now - it won\'t be shown again.');
+                setNewKeyExpiresAt('');
+                setNewKeyAllowedIps('');
+                showNotification('API Key generated. Copy it now because it will not be shown again.');
             } else {
                 showNotification('Failed to generate API key', 'error');
             }
@@ -868,12 +1150,22 @@ const SecurityApp = () => {
         setLoading(false);
     };
 
-    const saveOrigins = async () => {
+    const saveApiKeyConstraints = async (entry) => {
+        if (!entry || !entry.name) {
+            return;
+        }
+
+        const draft = getConstraintDraft(entry);
+
         setLoading(true);
         try {
             const formData = new FormData();
             formData.append('action', 'save_security_settings');
-            formData.append('allowed_origins', origins);
+            formData.append('nonce', atlaspress_ajax.security_nonce || '');
+            formData.append('api_key_action', 'update_constraints');
+            formData.append('api_key_name', entry.name);
+            formData.append('api_key_expires_at', draft.expiresAt || '');
+            formData.append('api_key_allowed_ips', draft.allowedIps || '');
 
             const response = await fetch(atlaspress_ajax.ajaxurl, {
                 method: 'POST',
@@ -882,9 +1174,103 @@ const SecurityApp = () => {
 
             const result = await response.json();
             if (result.success) {
-                showNotification('CORS settings saved!');
+                const details = Array.isArray(result?.data?.api_key_details) ? result.data.api_key_details : [];
+                applyApiKeyDetails(details);
+                showNotification(result?.data?.message || `Restrictions updated for "${entry.name}".`);
             } else {
-                showNotification('Failed to save settings', 'error');
+                showNotification(result?.data || 'Failed to update API key restrictions', 'error');
+            }
+        } catch (error) {
+            showNotification('Error: ' + error.message, 'error');
+        }
+        setLoading(false);
+    };
+
+    const manageApiKey = async (entry, actionType) => {
+        if (!entry || !entry.name || !actionType) {
+            return;
+        }
+
+        if (actionType === 'delete' && !window.confirm(`Delete API key "${entry.name}"? This cannot be undone.`)) {
+            return;
+        }
+
+        if (actionType === 'rotate' && !window.confirm(`Rotate API key "${entry.name}"? Existing integrations using the old key will stop working.`)) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('action', 'save_security_settings');
+            formData.append('nonce', atlaspress_ajax.security_nonce || '');
+            formData.append('api_key_action', actionType);
+            formData.append('api_key_name', entry.name);
+
+            const response = await fetch(atlaspress_ajax.ajaxurl, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                const details = Array.isArray(result?.data?.api_key_details) ? result.data.api_key_details : [];
+                applyApiKeyDetails(details);
+
+                if (actionType === 'rotate' && result?.data?.api_key) {
+                    setGeneratedKey(result.data.api_key);
+                    showNotification(`API key rotated for "${entry.name}". Copy the new key now.`);
+                } else {
+                    showNotification(result?.data?.message || 'API key updated.');
+                }
+            } else {
+                showNotification(result?.data || 'Failed to update API key', 'error');
+            }
+        } catch (error) {
+            showNotification('Error: ' + error.message, 'error');
+        }
+        setLoading(false);
+    };
+
+    const saveSecuritySettings = async () => {
+        setLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('action', 'save_security_settings');
+            formData.append('nonce', atlaspress_ajax.security_nonce || '');
+            formData.append('allowed_origins', origins);
+            formData.append('require_signed_form_capture', requireSignedFormCapture ? '1' : '0');
+            formData.append('require_signed_hubspot_webhook', requireSignedHubspotWebhook ? '1' : '0');
+            formData.append('allow_legacy_signed_ingest', allowLegacySignedIngest ? '1' : '0');
+            if (isProActive) {
+                formData.append('rate_limit_rules', JSON.stringify({
+                    public: normalizeRateLimitValue(rateLimitPublic, 300),
+                    private: normalizeRateLimitValue(rateLimitPrivate, 100),
+                    route_overrides: parseRouteOverridesText(rateLimitOverrides)
+                }));
+            }
+
+            const response = await fetch(atlaspress_ajax.ajaxurl, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                const policy = result?.data?.settings?.signature_policy || {};
+                const rules = normalizeRateLimitRules(result?.data?.settings?.rate_limit_rules || {});
+                if (typeof result?.data?.settings?.is_pro_active !== 'undefined') {
+                    setIsProActive(Boolean(result.data.settings.is_pro_active));
+                }
+                setRequireSignedFormCapture(Boolean(policy.require_signed_form_capture));
+                setRequireSignedHubspotWebhook(Boolean(policy.require_signed_hubspot_webhook));
+                setAllowLegacySignedIngest(Boolean(policy.allow_legacy_signed_ingest));
+                setRateLimitPublic(String(rules.public));
+                setRateLimitPrivate(String(rules.private));
+                setRateLimitOverrides(routeOverridesToText(rules.route_overrides));
+                showNotification('Security settings saved.');
+            } else {
+                showNotification(result?.data || 'Failed to save settings', 'error');
             }
         } catch (error) {
             showNotification('Error: ' + error.message, 'error');
@@ -900,7 +1286,7 @@ const SecurityApp = () => {
         createElement(
             'div',
             { style: { maxWidth: '900px', padding: '20px' } },
-            
+
             notification && createElement(
                 'div',
                 {
@@ -910,104 +1296,414 @@ const SecurityApp = () => {
                 createElement('p', null, notification.message)
             ),
 
-        createElement('h2', null, 'API Security Settings'),
-        
-        // API Keys Section
-        createElement(
-            'div',
-            { className: 'postbox', style: { padding: '20px', marginBottom: '20px' } },
-            createElement('h3', null, '🔑 API Keys'),
-            createElement('p', null, 'Generate API keys for secure access to your AtlasPress API endpoints.'),
-            
-            apiKeys.length > 0 && createElement(
-                'div',
-                { style: { marginBottom: '15px' } },
-                createElement('h4', null, 'Active Keys:'),
-                createElement(
-                    'ul',
-                    { style: { listStyle: 'disc', paddingLeft: '20px' } },
-                    apiKeys.map(key => createElement('li', { key }, key))
-                )
-            ),
-            
-            generatedKey && createElement(
-                'div',
-                { style: { padding: '15px', background: '#d4edda', borderRadius: '5px', marginBottom: '15px' } },
-                createElement('strong', null, 'Your new API Key (copy now):'),
-                createElement('br'),
-                createElement('code', { style: { fontSize: '14px', wordBreak: 'break-all' } }, generatedKey),
-                createElement('br'),
-                createElement('small', null, 'This key will not be shown again!')
-            ),
-            
+            createElement('h2', null, 'API Security Settings'),
+
             createElement(
                 'div',
-                { style: { display: 'flex', gap: '10px', alignItems: 'center' } },
-                createElement('input', {
-                    type: 'text',
-                    placeholder: 'Key name (e.g., Production API)',
-                    value: newKeyName,
-                    onChange: (e) => setNewKeyName(e.target.value),
-                    style: { flex: 1, padding: '8px' }
+                { className: 'postbox', style: { padding: '20px', marginBottom: '20px' } },
+                createElement('h3', null, 'API Keys'),
+                createElement('p', null, 'Generate API keys for secure access to AtlasPress API endpoints.'),
+
+                (apiKeyDetails.length > 0 || apiKeys.length > 0) && createElement(
+                    'div',
+                    { style: { marginBottom: '15px' } },
+                    createElement('h4', null, 'Active Keys:'),
+                    apiKeyDetails.length > 0
+                        ? createElement(
+                            'div',
+                            null,
+                            apiKeyDetails.map((entry) => {
+                                const draft = getConstraintDraft(entry);
+
+                                return createElement(
+                                    'div',
+                                    {
+                                        key: entry.name,
+                                        style: {
+                                            border: '1px solid #e5e7eb',
+                                            borderRadius: '6px',
+                                            padding: '10px',
+                                            marginBottom: '8px',
+                                            background: '#fff'
+                                        }
+                                    },
+                                    createElement('strong', null, entry.name),
+                                    createElement('div', { style: { marginTop: '4px', fontSize: '12px', color: '#555' } },
+                                        `Scopes: ${(entry.scopes || []).join(', ') || 'none'}`
+                                    ),
+                                    createElement('div', { style: { marginTop: '2px', fontSize: '12px', color: '#777' } },
+                                        `Status: ${entry.status || 'active'}${entry.legacy ? ' (legacy key)' : ''}`
+                                    ),
+                                    createElement('div', { style: { marginTop: '2px', fontSize: '12px', color: '#888' } },
+                                        `Created: ${entry.created_at || 'n/a'}`
+                                    ),
+                                    createElement('div', { style: { marginTop: '2px', fontSize: '12px', color: '#888' } },
+                                        `Last used: ${entry.last_used_at || 'never'}`
+                                    ),
+                                    createElement('div', { style: { marginTop: '2px', fontSize: '12px', color: '#888' } },
+                                        `Expires: ${entry.expires_at || 'never'}${entry.is_expired ? ' (expired)' : ''}`
+                                    ),
+                                    createElement('div', { style: { marginTop: '2px', fontSize: '12px', color: '#888' } },
+                                        `Allowed IPs: ${(entry.allowed_ips || []).join(', ') || 'any'}`
+                                    ),
+                                    createElement(
+                                        'div',
+                                        {
+                                            style: {
+                                                marginTop: '10px',
+                                                padding: '10px',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '6px',
+                                                background: '#f8fafc'
+                                            }
+                                        },
+                                        createElement(
+                                            'div',
+                                            { style: { fontSize: '12px', fontWeight: '600', marginBottom: '8px', color: '#334155' } },
+                                            'Edit Restrictions'
+                                        ),
+                                        createElement(
+                                            'label',
+                                            { style: { display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '600' } },
+                                            'Expiration'
+                                        ),
+                                        createElement('input', {
+                                            type: 'datetime-local',
+                                            value: draft.expiresAt || '',
+                                            onChange: (e) => updateConstraintDraft(entry, 'expiresAt', e.target.value),
+                                            disabled: loading,
+                                            style: { width: '100%', padding: '6px', marginBottom: '8px' }
+                                        }),
+                                        createElement(
+                                            'label',
+                                            { style: { display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '600' } },
+                                            'Allowed IPs / CIDRs (one per line)'
+                                        ),
+                                        createElement('textarea', {
+                                            value: draft.allowedIps || '',
+                                            onChange: (e) => updateConstraintDraft(entry, 'allowedIps', e.target.value),
+                                            disabled: loading,
+                                            rows: 3,
+                                            placeholder: '203.0.113.10\n198.51.100.0/24',
+                                            style: { width: '100%', padding: '6px', fontFamily: 'monospace' }
+                                        }),
+                                        createElement(
+                                            'div',
+                                            { style: { marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' } },
+                                            createElement(
+                                                'button',
+                                                {
+                                                    type: 'button',
+                                                    className: 'button button-secondary',
+                                                    onClick: () => saveApiKeyConstraints(entry),
+                                                    disabled: loading
+                                                },
+                                                'Save Restrictions'
+                                            ),
+                                            createElement(
+                                                'button',
+                                                {
+                                                    type: 'button',
+                                                    className: 'button',
+                                                    onClick: () => resetConstraintDraft(entry),
+                                                    disabled: loading
+                                                },
+                                                'Reset'
+                                            )
+                                        )
+                                    ),
+                                    createElement(
+                                        'div',
+                                        { style: { marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap' } },
+                                        createElement(
+                                            'button',
+                                            {
+                                                type: 'button',
+                                                className: 'button',
+                                                onClick: () => manageApiKey(entry, 'rotate'),
+                                                disabled: loading
+                                            },
+                                            'Rotate'
+                                        ),
+                                        createElement(
+                                            'button',
+                                            {
+                                                type: 'button',
+                                                className: 'button',
+                                                onClick: () => manageApiKey(entry, entry.status === 'disabled' ? 'enable' : 'disable'),
+                                                disabled: loading
+                                            },
+                                            entry.status === 'disabled' ? 'Enable' : 'Disable'
+                                        ),
+                                        createElement(
+                                            'button',
+                                            {
+                                                type: 'button',
+                                                className: 'button button-link-delete',
+                                                onClick: () => manageApiKey(entry, 'delete'),
+                                                disabled: loading
+                                            },
+                                            'Delete'
+                                        )
+                                    )
+                                );
+                            })
+                        )
+                        : createElement(
+                            'ul',
+                            { style: { listStyle: 'disc', paddingLeft: '20px' } },
+                            apiKeys.map(key => createElement('li', { key }, key))
+                        )
+                ),
+
+                generatedKey && createElement(
+                    'div',
+                    { style: { padding: '15px', background: '#d4edda', borderRadius: '5px', marginBottom: '15px' } },
+                    createElement('strong', null, 'Your new API key (copy now):'),
+                    createElement('br'),
+                    createElement('code', { style: { fontSize: '14px', wordBreak: 'break-all' } }, generatedKey),
+                    createElement('br'),
+                    createElement('small', null, 'This key will not be shown again.')
+                ),
+
+                createElement(
+                    'div',
+                    { style: { marginBottom: '12px' } },
+                    createElement('h4', { style: { margin: '0 0 8px 0' } }, 'Scopes for New Key'),
+                    createElement(
+                        'div',
+                        { style: { display: 'grid', gap: '6px' } },
+                        Object.entries(scopeDefinitions).map(([scope, meta]) =>
+                            createElement(
+                                'label',
+                                { key: scope, style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+                                createElement('input', {
+                                    type: 'checkbox',
+                                    checked: selectedScopes.includes(scope),
+                                    onChange: () => toggleScope(scope)
+                                }),
+                                createElement(
+                                    'span',
+                                    null,
+                                    `${meta.label || scope} - ${meta.description || ''}`
+                                )
+                            )
+                        )
+                    )
+                ),
+
+                createElement(
+                    'div',
+                    { style: { marginBottom: '12px' } },
+                    createElement('h4', { style: { margin: '0 0 8px 0' } }, 'Optional Restrictions'),
+                    createElement(
+                        'label',
+                        { style: { display: 'block', marginBottom: '6px', fontWeight: '600' } },
+                        'Expiration (optional)'
+                    ),
+                    createElement('input', {
+                        type: 'datetime-local',
+                        value: newKeyExpiresAt,
+                        onChange: (e) => setNewKeyExpiresAt(e.target.value),
+                        style: { width: '100%', padding: '8px', marginBottom: '8px' }
+                    }),
+                    createElement(
+                        'label',
+                        { style: { display: 'block', marginBottom: '6px', fontWeight: '600' } },
+                        'Allowed IPs / CIDRs (optional, one per line)'
+                    ),
+                    createElement('textarea', {
+                        value: newKeyAllowedIps,
+                        onChange: (e) => setNewKeyAllowedIps(e.target.value),
+                        placeholder: '203.0.113.10\n198.51.100.0/24',
+                        rows: 3,
+                        style: { width: '100%', padding: '8px', fontFamily: 'monospace' }
+                    })
+                ),
+
+                createElement(
+                    'div',
+                    { style: { display: 'flex', gap: '10px', alignItems: 'center' } },
+                    createElement('input', {
+                        type: 'text',
+                        placeholder: 'Key name (e.g., Production API)',
+                        value: newKeyName,
+                        onChange: (e) => setNewKeyName(e.target.value),
+                        style: { flex: 1, padding: '8px' }
+                    }),
+                    createElement(
+                        'button',
+                        {
+                            className: 'button button-primary',
+                            onClick: generateApiKey,
+                            disabled: loading
+                        },
+                        loading ? 'Generating...' : 'Generate API Key'
+                    )
+                )
+            ),
+
+            createElement(
+                'div',
+                { className: 'postbox', style: { padding: '20px', marginBottom: '20px' } },
+                createElement('h3', null, 'Signed Ingest Policy'),
+                createElement('p', null, 'Control signature enforcement for public ingest routes. Strict mode is the secure default.'),
+                createElement(
+                    'label',
+                    { style: { display: 'block', marginBottom: '10px' } },
+                    createElement('input', {
+                        type: 'checkbox',
+                        checked: requireSignedFormCapture,
+                        onChange: (e) => setRequireSignedFormCapture(e.target.checked),
+                        style: { marginRight: '8px' }
+                    }),
+                    'Require signed requests for /form-capture'
+                ),
+                createElement(
+                    'label',
+                    { style: { display: 'block', marginBottom: '10px' } },
+                    createElement('input', {
+                        type: 'checkbox',
+                        checked: requireSignedHubspotWebhook,
+                        onChange: (e) => setRequireSignedHubspotWebhook(e.target.checked),
+                        style: { marginRight: '8px' }
+                    }),
+                    'Require signed requests for /hubspot/webhook'
+                ),
+                createElement(
+                    'label',
+                    { style: { display: 'block', marginBottom: '8px' } },
+                    createElement('input', {
+                        type: 'checkbox',
+                        checked: allowLegacySignedIngest,
+                        onChange: (e) => setAllowLegacySignedIngest(e.target.checked),
+                        style: { marginRight: '8px' }
+                    }),
+                    'Allow legacy signatures for compatibility'
+                ),
+                createElement(
+                    'p',
+                    { style: { color: '#666', margin: 0 } },
+                    'Legacy mode should be temporary during client migration.'
+                )
+            ),
+
+            createElement(
+                'div',
+                { className: 'postbox', style: { padding: '20px', marginBottom: '20px' } },
+                createElement('h3', null, 'Rate Limiting'),
+                createElement('p', null, 'Requests are counted per route and API key/IP over a rolling hour.'),
+                !isProActive
+                    ? createElement(
+                        'div',
+                        {
+                            style: {
+                                padding: '10px 12px',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '6px',
+                                background: '#f8fafc',
+                                color: '#475569'
+                            }
+                        },
+                        `Using secure defaults (Public: ${rateLimitPublic}/hour, Private: ${rateLimitPrivate}/hour). Activate Pro to configure custom rules.`
+                    )
+                    : createElement(
+                        'div',
+                        null,
+                        createElement(
+                            'div',
+                            { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' } },
+                            createElement(
+                                'label',
+                                { style: { display: 'block' } },
+                                createElement('span', { style: { display: 'block', marginBottom: '6px', fontWeight: '600' } }, 'Public Routes / Hour'),
+                                createElement('input', {
+                                    type: 'number',
+                                    min: 1,
+                                    max: 100000,
+                                    value: rateLimitPublic,
+                                    onChange: (e) => setRateLimitPublic(e.target.value),
+                                    style: { width: '100%', padding: '8px' }
+                                })
+                            ),
+                            createElement(
+                                'label',
+                                { style: { display: 'block' } },
+                                createElement('span', { style: { display: 'block', marginBottom: '6px', fontWeight: '600' } }, 'Private Routes / Hour'),
+                                createElement('input', {
+                                    type: 'number',
+                                    min: 1,
+                                    max: 100000,
+                                    value: rateLimitPrivate,
+                                    onChange: (e) => setRateLimitPrivate(e.target.value),
+                                    style: { width: '100%', padding: '8px' }
+                                })
+                            )
+                        ),
+                        createElement(
+                            'label',
+                            { style: { display: 'block', marginBottom: '6px', fontWeight: '600' } },
+                            'Route Overrides (one per line, pattern=limit)'
+                        ),
+                        createElement('textarea', {
+                            value: rateLimitOverrides,
+                            onChange: (e) => setRateLimitOverrides(e.target.value),
+                            placeholder: '/atlaspress/v1/form-capture=600\n/atlaspress/v1/graphql=250',
+                            rows: 4,
+                            style: { width: '100%', padding: '8px', fontFamily: 'monospace' }
+                        }),
+                        createElement(
+                            'p',
+                            { style: { margin: '8px 0 0 0', color: '#666' } },
+                            'Patterns must start with /atlaspress/v1/ and may include * wildcards.'
+                        )
+                    )
+            ),
+
+            createElement(
+                'div',
+                { className: 'postbox', style: { padding: '20px', marginBottom: '20px' } },
+                createElement('h3', null, 'CORS Settings'),
+                createElement('p', null, 'Add allowed origins (one per line). If empty, AtlasPress allows same-origin requests only.'),
+                createElement('textarea', {
+                    value: origins,
+                    onChange: (e) => setOrigins(e.target.value),
+                    placeholder: 'https://example.com\nhttps://app.example.com',
+                    rows: 5,
+                    style: { width: '100%', padding: '8px', fontFamily: 'monospace' }
                 }),
                 createElement(
                     'button',
                     {
                         className: 'button button-primary',
-                        onClick: generateApiKey,
-                        disabled: loading
+                        onClick: saveSecuritySettings,
+                        disabled: loading,
+                        style: { marginTop: '10px' }
                     },
-                    loading ? 'Generating...' : 'Generate API Key'
+                    loading ? 'Saving...' : 'Save Security Settings'
+                )
+            ),
+
+            createElement(
+                'div',
+                { className: 'postbox', style: { padding: '20px', background: '#f0f6fc' } },
+                createElement('h3', null, 'Pro Features'),
+                createElement('p', null, 'Upgrade to AtlasPress Pro for:'),
+                createElement(
+                    'ul',
+                    { style: { listStyle: 'disc', paddingLeft: '20px' } },
+                    createElement('li', null, 'Rate limiting with custom rules'),
+                    createElement('li', null, 'Advanced webhook retry logic'),
+                    createElement('li', null, 'Request signing verification'),
+                    createElement('li', null, 'Analytics dashboard'),
+                    createElement('li', null, 'Priority support')
+                ),
+                createElement(
+                    'a',
+                    { href: 'admin.php?page=atlaspress-pro', className: 'button button-primary' },
+                    'Learn More'
                 )
             )
-        ),
-        
-        // CORS Section
-        createElement(
-            'div',
-            { className: 'postbox', style: { padding: '20px', marginBottom: '20px' } },
-            createElement('h3', null, '🌐 CORS Settings'),
-            createElement('p', null, 'Add allowed origins (one per line). Leave empty to allow all origins.'),
-            createElement('textarea', {
-                value: origins,
-                onChange: (e) => setOrigins(e.target.value),
-                placeholder: 'https://example.com\nhttps://app.example.com',
-                rows: 5,
-                style: { width: '100%', padding: '8px', fontFamily: 'monospace' }
-            }),
-            createElement(
-                'button',
-                {
-                    className: 'button button-primary',
-                    onClick: saveOrigins,
-                    disabled: loading,
-                    style: { marginTop: '10px' }
-                },
-                loading ? 'Saving...' : 'Save CORS Settings'
-            )
-        ),
-        
-        // Pro Features Teaser
-        createElement(
-            'div',
-            { className: 'postbox', style: { padding: '20px', background: '#f0f6fc' } },
-            createElement('h3', null, '⭐ Pro Features'),
-            createElement('p', null, 'Upgrade to AtlasPress Pro for:'),
-            createElement(
-                'ul',
-                { style: { listStyle: 'disc', paddingLeft: '20px' } },
-                createElement('li', null, 'Rate limiting with custom rules'),
-                createElement('li', null, 'Advanced webhook retry logic'),
-                createElement('li', null, 'Request signing verification'),
-                createElement('li', null, 'Analytics dashboard'),
-                createElement('li', null, 'Priority support')
-            ),
-            createElement(
-                'a',
-                { href: 'admin.php?page=atlaspress-pro', className: 'button button-primary' },
-                'Learn More'
-            )
-        )
         )
     );
 };
@@ -1098,15 +1794,75 @@ const DashboardApp = () => {
     const [loading, setLoading] = useState(true);
     const [showResetModal, setShowResetModal] = useState(false);
     const [notification, setNotification] = useState(null);
+    const [selectedRange, setSelectedRange] = useState('30d');
+    const [selectedCompare, setSelectedCompare] = useState('previous_period');
+    const [customStartDate, setCustomStartDate] = useState(() => {
+        const start = new Date();
+        start.setDate(start.getDate() - 29);
+        return start.toISOString().slice(0, 10);
+    });
+    const [customEndDate, setCustomEndDate] = useState(() => new Date().toISOString().slice(0, 10));
+    const [isApplyingFilters, setIsApplyingFilters] = useState(false);
 
     const showNotification = (message, type = 'success') => {
         setNotification({ message, type });
         setTimeout(() => setNotification(null), 3000);
     };
 
-    const RecentEntriesWidget = ({ entries }) => createElement(
+    const buildDashboardPath = () => {
+        const query = new URLSearchParams();
+        query.set('range', selectedRange);
+        query.set('compare', selectedCompare);
+
+        if (selectedRange === 'custom') {
+            query.set('start_date', customStartDate);
+            query.set('end_date', customEndDate);
+        }
+
+        return `/atlaspress/v1/dashboard?${query.toString()}`;
+    };
+
+    const loadDashboardStats = ({ initial = false } = {}) => {
+        if (initial) {
+            setLoading(true);
+        } else {
+            setIsApplyingFilters(true);
+        }
+
+        apiFetch({ path: buildDashboardPath() })
+            .then((data) => {
+                setStats(data);
+            })
+            .catch((error) => {
+                if (!initial) {
+                    showNotification(error?.message || 'Failed to load dashboard analytics.', 'error');
+                }
+            })
+            .finally(() => {
+                setLoading(false);
+                setIsApplyingFilters(false);
+            });
+    };
+
+    const applyDashboardFilters = () => {
+        if (selectedRange === 'custom') {
+            if (!customStartDate || !customEndDate) {
+                showNotification('Select both start and end dates for custom range.', 'error');
+                return;
+            }
+
+            if (customStartDate > customEndDate) {
+                showNotification('Start date must be before end date.', 'error');
+                return;
+            }
+        }
+
+        loadDashboardStats();
+    };
+
+    const RecentEntriesWidget = ({ entries, className = 'dashboard-widget' }) => createElement(
         'div',
-        { className: 'dashboard-widget' },
+        { className },
         createElement('h3', null, 'Recent Submissions'),
         entries.length === 0 
             ? createElement('p', { style: { color: 'var(--gray-500)' } }, 'No recent submissions')
@@ -1124,9 +1880,9 @@ const DashboardApp = () => {
             )
     );
 
-    const TopTypesWidget = ({ types }) => createElement(
+    const TopTypesWidget = ({ types, className = 'dashboard-widget' }) => createElement(
         'div',
-        { className: 'dashboard-widget' },
+        { className },
         createElement('h3', null, 'Top Content Types'),
         types.length === 0
             ? createElement('p', { style: { color: 'var(--gray-500)' } }, 'No content types yet')
@@ -1150,6 +1906,244 @@ const DashboardApp = () => {
                 ))
             )
     );
+
+    const formatGrowthPercent = (value) => {
+        if (value === null || value === undefined || value === '') {
+            return '--';
+        }
+
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+            return '--';
+        }
+
+        const rounded = Math.round(numeric * 100) / 100;
+        const sign = rounded > 0 ? '+' : '';
+        return `${sign}${rounded}%`;
+    };
+
+    const formatCompactNumber = (value) => {
+        const numeric = Number(value || 0);
+        if (!Number.isFinite(numeric)) {
+            return '0';
+        }
+
+        if (numeric >= 1000000) {
+            return `${(numeric / 1000000).toFixed(1)}M`;
+        }
+        if (numeric >= 1000) {
+            return `${(numeric / 1000).toFixed(1)}k`;
+        }
+
+        return String(Math.round(numeric));
+    };
+
+    const normalizeWeeklyStats = (weeklyStats) => {
+        if (!Array.isArray(weeklyStats)) {
+            return [];
+        }
+
+        return weeklyStats
+            .map((row) => ({
+                date: String(row?.date || ''),
+                count: Number(row?.count || 0)
+            }))
+            .filter((row) => row.date)
+            .sort((a, b) => a.date.localeCompare(b.date));
+    };
+
+    const normalizeHourlyStats = (hourlyStats) => {
+        if (!Array.isArray(hourlyStats)) {
+            return [];
+        }
+
+        return hourlyStats
+            .map((row) => ({
+                hour: Number(row?.hour || 0),
+                count: Number(row?.count || 0)
+            }))
+            .filter((row) => Number.isFinite(row.hour) && row.hour >= 0 && row.hour <= 23)
+            .sort((a, b) => a.hour - b.hour);
+    };
+
+    const ProMetricTile = ({ label, value, caption }) => createElement(
+        'div',
+        { className: 'atlaspress-pro-metric-tile' },
+        createElement('span', { className: 'atlaspress-pro-metric-label' }, label),
+        createElement('strong', { className: 'atlaspress-pro-metric-value' }, value),
+        caption ? createElement('small', { className: 'atlaspress-pro-metric-caption' }, caption) : null
+    );
+
+    const TrendBarsWidget = ({ weeklyStats, title = 'Entry Trend' }) => {
+        const series = normalizeWeeklyStats(weeklyStats);
+        const maxCount = Math.max(...series.map((item) => item.count), 1);
+        const labelStep = series.length > 14 ? Math.ceil(series.length / 7) : 1;
+
+        return createElement(
+            'div',
+            { className: 'dashboard-widget atlaspress-pro-card atlaspress-pro-card-span-2' },
+            createElement('h3', null, title),
+            series.length === 0
+                ? createElement('p', { style: { color: 'var(--gray-500)' } }, 'No trend data yet')
+                : createElement(
+                    'div',
+                    { className: 'atlaspress-pro-bars-scroll' },
+                    createElement(
+                        'div',
+                        {
+                            className: 'atlaspress-pro-bars',
+                            style: { gridTemplateColumns: `repeat(${Math.max(series.length, 1)}, minmax(34px, 1fr))` }
+                        },
+                        series.map((item, index) => {
+                            const showLabel = series.length <= 14 || index === 0 || index === series.length - 1 || index % labelStep === 0;
+                            const label = showLabel ? item.date.slice(5) : '';
+                            const normalizedHeight = Math.max(8, Math.round((item.count / maxCount) * 100));
+
+                            return createElement(
+                                'div',
+                                { key: item.date, className: 'atlaspress-pro-bar-col' },
+                                createElement(
+                                    'div',
+                                    { className: 'atlaspress-pro-bar-track' },
+                                    createElement('div', {
+                                        className: 'atlaspress-pro-bar-fill',
+                                        style: { height: `${normalizedHeight}%` },
+                                        title: `${item.date}: ${item.count}`
+                                    })
+                                ),
+                                createElement('span', { className: 'atlaspress-pro-bar-label' }, label),
+                                createElement('strong', { className: 'atlaspress-pro-bar-value' }, item.count)
+                            );
+                        })
+                    )
+                )
+        );
+    };
+
+    const HourlyBarsWidget = ({ hourlyStats, title = 'Hourly Activity' }) => {
+        const series = normalizeHourlyStats(hourlyStats);
+        const maxCount = Math.max(...series.map((item) => item.count), 1);
+
+        return createElement(
+            'div',
+            { className: 'dashboard-widget atlaspress-pro-card' },
+            createElement('h3', null, title),
+            series.length === 0
+                ? createElement('p', { style: { color: 'var(--gray-500)' } }, 'No hourly data yet')
+                : createElement(
+                    'div',
+                    { className: 'atlaspress-pro-hourly-grid' },
+                    series.map((item) =>
+                        createElement('div', {
+                            key: item.hour,
+                            className: 'atlaspress-pro-hourly-bar',
+                            style: { height: `${Math.max(6, Math.round((item.count / maxCount) * 100))}%` },
+                            title: `${item.hour}:00 - ${item.count}`
+                        })
+                    )
+                ),
+            series.length > 0 && createElement(
+                'div',
+                { className: 'atlaspress-pro-hourly-labels' },
+                createElement('span', null, '00:00'),
+                createElement('span', null, '12:00'),
+                createElement('span', null, '23:00')
+            )
+        );
+    };
+
+    const StatusBarsWidget = ({ breakdown, title = 'Status Distribution' }) => {
+        const rows = Array.isArray(breakdown) ? breakdown : [];
+        const total = rows.reduce((sum, row) => sum + Number(row?.count || 0), 0);
+
+        return createElement(
+            'div',
+            { className: 'dashboard-widget atlaspress-pro-card' },
+            createElement('h3', null, title),
+            rows.length === 0
+                ? createElement('p', { style: { color: 'var(--gray-500)' } }, 'No status data yet')
+                : createElement(
+                    'div',
+                    { className: 'atlaspress-pro-status-list' },
+                    rows.map((item) => {
+                        const count = Number(item?.count || 0);
+                        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                        return createElement(
+                            'div',
+                            { key: `${item.status}-${count}`, className: 'atlaspress-pro-status-item' },
+                            createElement(
+                                'div',
+                                { className: 'atlaspress-pro-status-head' },
+                                createElement('span', null, item.status || 'unknown'),
+                                createElement('strong', null, `${count} (${pct}%)`)
+                            ),
+                            createElement(
+                                'div',
+                                { className: 'atlaspress-pro-status-track' },
+                                createElement('div', {
+                                    className: 'atlaspress-pro-status-fill',
+                                    style: { width: `${pct}%` }
+                                })
+                            )
+                        );
+                    })
+                )
+        );
+    };
+
+    const MomentumBarsWidget = ({ momentum, title = 'Type Momentum', compareEnabled = true }) => {
+        const rows = Array.isArray(momentum) ? momentum : [];
+        const maxCurrent = Math.max(...rows.map((item) => Number(item?.current_entries || 0)), 1);
+
+        return createElement(
+            'div',
+            { className: 'dashboard-widget atlaspress-pro-card atlaspress-pro-card-span-2' },
+            createElement('h3', null, title),
+            rows.length === 0
+                ? createElement('p', { style: { color: 'var(--gray-500)' } }, 'No momentum data yet')
+                : createElement(
+                    'div',
+                    { className: 'atlaspress-pro-momentum-list' },
+                    rows.map((item) => {
+                        const current = Number(item?.current_entries || 0);
+                        const hasPrevious = item?.previous_entries !== null && item?.previous_entries !== undefined;
+                        const previous = hasPrevious ? Number(item?.previous_entries || 0) : null;
+                        const growth = item?.growth_percent;
+                        const hasGrowth = compareEnabled && growth !== null && growth !== undefined && Number.isFinite(Number(growth));
+                        const growthClassName = !hasGrowth
+                            ? 'atlaspress-growth-flat'
+                            : (Number(growth) >= 0 ? 'atlaspress-growth-up' : 'atlaspress-growth-down');
+                        const width = Math.max(8, Math.round((current / maxCurrent) * 100));
+
+                        return createElement(
+                            'div',
+                            { key: `${item.name}-${current}`, className: 'atlaspress-pro-momentum-item' },
+                            createElement(
+                                'div',
+                                { className: 'atlaspress-pro-momentum-head' },
+                                createElement('strong', null, item.name || 'Untitled'),
+                                createElement('span', { className: growthClassName }, hasGrowth ? formatGrowthPercent(growth) : 'Compare off')
+                            ),
+                            createElement(
+                                'div',
+                                { className: 'atlaspress-pro-momentum-meta' },
+                                hasPrevious
+                                    ? `${formatCompactNumber(current)} current / ${formatCompactNumber(previous)} previous`
+                                    : `${formatCompactNumber(current)} current / comparison disabled`
+                            ),
+                            createElement(
+                                'div',
+                                { className: 'atlaspress-pro-momentum-track' },
+                                createElement('div', {
+                                    className: 'atlaspress-pro-momentum-fill',
+                                    style: { width: `${width}%` }
+                                })
+                            )
+                        );
+                    })
+                )
+        );
+    };
 
     const handleReset = async () => {
         try {
@@ -1189,20 +2183,32 @@ const DashboardApp = () => {
     };
 
     useEffect(() => {
-        apiFetch({ path: '/atlaspress/v1/dashboard' })
-            .then(data => {
-                setStats(data);
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
+        loadDashboardStats({ initial: true });
     }, []);
 
     if (loading) return createElement(LoadingSpinner);
     if (!stats) return createElement('div', null, 'Failed to load dashboard data.');
 
+    const isProDashboard = Boolean(stats.isProActive);
+    const advanced = stats.advancedAnalytics || null;
+    const rangeContext = stats.rangeContext || null;
+    const rangeLabel = String(rangeContext?.label || 'Selected range');
+    const rangeDays = Number(rangeContext?.days || 0);
+    const compareMode = String(rangeContext?.compare || selectedCompare);
+    const compareEnabled = compareMode === 'previous_period';
+    const entriesLast24h = Number(advanced?.entries_last_24h || 0);
+    const entriesInRange = Number(advanced?.entries_in_range ?? advanced?.entries_last_7d ?? 0);
+    const previousEntriesInRange = advanced?.previous_entries_in_range === null || advanced?.previous_entries_in_range === undefined
+        ? null
+        : Number(advanced.previous_entries_in_range);
+    const growthInRange = advanced?.growth_range_percent;
+    const avgPerDay = Number(advanced?.avg_daily_entries_range ?? 0);
+    const hourlySeries = advanced?.hourly_activity_range || advanced?.hourly_activity_7d || [];
+    const activeHours = normalizeHourlyStats(hourlySeries).filter((item) => item.count > 0).length;
+
     return createElement('div', null, createElement(Header, { notificationCount, newEntries }),
         createElement('div',
-        { className: 'atlaspress-dashboard' },
+        { className: isProDashboard ? 'atlaspress-dashboard atlaspress-dashboard-pro' : 'atlaspress-dashboard' },
         
         notification && createElement(
             'div',
@@ -1265,6 +2271,117 @@ const DashboardApp = () => {
                 )
             )
         ),
+
+        isProDashboard && createElement(
+            'div',
+            { className: 'atlaspress-pro-hero' },
+            createElement(
+                'div',
+                { className: 'atlaspress-pro-hero-content' },
+                createElement('span', { className: 'atlaspress-pro-hero-tag' }, 'PRO DASHBOARD'),
+                createElement('h2', null, 'Premium Analytics Overview'),
+                createElement(
+                    'p',
+                    null,
+                    `Viewing ${rangeLabel}${compareEnabled ? ' compared to the previous period.' : ' with comparison disabled.'}`
+                )
+            ),
+            createElement(
+                'div',
+                { className: 'atlaspress-pro-hero-metrics' },
+                createElement(
+                    'div',
+                    { className: 'atlaspress-pro-hero-metric' },
+                    createElement('span', null, 'Entries (24h)'),
+                    createElement('strong', null, formatCompactNumber(entriesLast24h))
+                ),
+                createElement(
+                    'div',
+                    { className: 'atlaspress-pro-hero-metric' },
+                    createElement('span', null, `Entries (${rangeDays > 0 ? `${rangeDays}d` : 'Range'})`),
+                    createElement('strong', null, formatCompactNumber(entriesInRange))
+                ),
+                createElement(
+                    'div',
+                    { className: 'atlaspress-pro-hero-metric' },
+                    createElement('span', null, 'Growth (Range)'),
+                    createElement('strong', null, compareEnabled ? formatGrowthPercent(growthInRange) : '--')
+                )
+            )
+        ),
+
+        isProDashboard && createElement(
+            'div',
+            { className: 'atlaspress-pro-filters' },
+            createElement(
+                'div',
+                { className: 'atlaspress-pro-filter-group' },
+                createElement('label', { className: 'atlaspress-pro-filter-label' }, 'Date Range'),
+                createElement(
+                    'select',
+                    {
+                        className: 'atlaspress-pro-filter-input',
+                        value: selectedRange,
+                        onChange: (event) => setSelectedRange(event.target.value)
+                    },
+                    createElement('option', { value: '7d' }, 'Last 7 days'),
+                    createElement('option', { value: '30d' }, 'Last 30 days'),
+                    createElement('option', { value: '90d' }, 'Last 90 days'),
+                    createElement('option', { value: 'custom' }, 'Custom range')
+                )
+            ),
+            selectedRange === 'custom' && createElement(
+                'div',
+                { className: 'atlaspress-pro-filter-group atlaspress-pro-filter-group-dates' },
+                createElement(
+                    'input',
+                    {
+                        className: 'atlaspress-pro-filter-input',
+                        type: 'date',
+                        value: customStartDate,
+                        onChange: (event) => setCustomStartDate(event.target.value)
+                    }
+                ),
+                createElement(
+                    'input',
+                    {
+                        className: 'atlaspress-pro-filter-input',
+                        type: 'date',
+                        value: customEndDate,
+                        onChange: (event) => setCustomEndDate(event.target.value)
+                    }
+                )
+            ),
+            createElement(
+                'div',
+                { className: 'atlaspress-pro-filter-group' },
+                createElement('label', { className: 'atlaspress-pro-filter-label' }, 'Compare'),
+                createElement(
+                    'select',
+                    {
+                        className: 'atlaspress-pro-filter-input',
+                        value: selectedCompare,
+                        onChange: (event) => setSelectedCompare(event.target.value)
+                    },
+                    createElement('option', { value: 'previous_period' }, 'Previous period'),
+                    createElement('option', { value: 'none' }, 'No comparison')
+                )
+            ),
+            createElement(
+                'button',
+                {
+                    className: 'button button-primary atlaspress-pro-filter-apply',
+                    onClick: applyDashboardFilters,
+                    disabled: isApplyingFilters
+                },
+                isApplyingFilters ? 'Applying...' : 'Apply'
+            ),
+            createElement(
+                'span',
+                { className: 'atlaspress-pro-filter-note' },
+                compareEnabled ? `${rangeLabel} vs previous period` : `${rangeLabel} (comparison disabled)`
+            )
+        ),
         
         createElement(
             'div',
@@ -1324,9 +2441,77 @@ const DashboardApp = () => {
             
             createElement(
                 'div',
-                { className: 'dashboard-widgets' },
-                createElement(RecentEntriesWidget, { entries: stats.recentEntries || [] }),
-                createElement(TopTypesWidget, { types: stats.topContentTypes || [] })
+                { className: isProDashboard ? 'dashboard-widgets atlaspress-pro-dashboard-grid' : 'dashboard-widgets' },
+                isProDashboard
+                    ? createElement(
+                        'div',
+                        { className: 'dashboard-widget atlaspress-pro-card atlaspress-pro-card-span-2 atlaspress-pro-metric-panel' },
+                        createElement('h3', null, 'Performance Snapshot'),
+                        createElement(
+                            'div',
+                            { className: 'atlaspress-pro-metric-grid' },
+                            createElement(ProMetricTile, {
+                                label: 'Entries (24h)',
+                                value: formatCompactNumber(entriesLast24h),
+                                caption: 'Latest ingest volume'
+                            }),
+                            createElement(ProMetricTile, {
+                                label: `Entries (${rangeDays > 0 ? `${rangeDays}d` : 'Range'})`,
+                                value: formatCompactNumber(entriesInRange),
+                                caption: rangeLabel
+                            }),
+                            createElement(ProMetricTile, {
+                                label: 'Growth (Range)',
+                                value: compareEnabled ? formatGrowthPercent(growthInRange) : '--',
+                                caption: compareEnabled
+                                    ? `From ${formatCompactNumber(previousEntriesInRange || 0)} previous entries`
+                                    : 'Comparison disabled'
+                            }),
+                            createElement(ProMetricTile, {
+                                label: 'Avg / Day',
+                                value: formatCompactNumber(avgPerDay),
+                                caption: `${activeHours}/24 active hours`
+                            })
+                        )
+                    )
+                    : createElement(RecentEntriesWidget, { entries: stats.recentEntries || [] }),
+                isProDashboard
+                    ? createElement(TrendBarsWidget, {
+                        weeklyStats: stats.weeklyStats || [],
+                        title: `${rangeLabel} Trend`
+                    })
+                    : createElement(TopTypesWidget, { types: stats.topContentTypes || [] }),
+                isProDashboard
+                    ? createElement(HourlyBarsWidget, {
+                        hourlyStats: hourlySeries,
+                        title: `Hourly Activity (${rangeDays > 0 ? `${rangeDays}d` : 'Range'})`
+                    })
+                    : createElement(
+                        'div',
+                        { className: 'dashboard-widget' },
+                        createElement('h3', null, 'Advanced Analytics (Pro)'),
+                        createElement('p', { style: { color: 'var(--gray-500)' } }, 'Activate Pro to unlock growth trends, status analytics, and momentum metrics.'),
+                        createElement('a', { href: 'admin.php?page=atlaspress-pro', className: 'button button-primary' }, 'Activate Pro')
+                    ),
+                isProDashboard && createElement(StatusBarsWidget, {
+                    breakdown: stats?.advancedAnalytics?.status_breakdown || [],
+                    title: `Status Distribution (${rangeDays > 0 ? `${rangeDays}d` : 'Range'})`
+                }),
+                isProDashboard && createElement(MomentumBarsWidget, {
+                    momentum: stats?.advancedAnalytics?.type_momentum || [],
+                    compareEnabled,
+                    title: compareEnabled
+                        ? `Type Momentum (${rangeDays > 0 ? `${rangeDays}d` : 'Range'} vs previous period)`
+                        : `Type Momentum (${rangeDays > 0 ? `${rangeDays}d` : 'Range'})`
+                }),
+                isProDashboard && createElement(RecentEntriesWidget, {
+                    entries: stats.recentEntries || [],
+                    className: 'dashboard-widget atlaspress-pro-card'
+                }),
+                isProDashboard && createElement(TopTypesWidget, {
+                    types: stats.topContentTypes || [],
+                    className: 'dashboard-widget atlaspress-pro-card'
+                })
             )
         )
         ), createElement(LiveUpdates, { onNotificationChange: setNotificationCount, onEntriesChange: setNewEntries }))
@@ -2444,3 +3629,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 window.atlaspressHeader = Header;
+

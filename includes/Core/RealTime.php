@@ -19,8 +19,9 @@ class RealTime {
         self::broadcast_change('atlaspress_entry_updated', $data);
     }
     
-    public static function enqueue_heartbeat($hook) {
-        if(strpos($hook, 'atlaspress') === false) return;
+    public static function enqueue_heartbeat($hook = '') {
+        if(!is_admin()) return;
+        if(!is_string($hook) || strpos($hook, 'atlaspress') === false) return;
         
         wp_enqueue_script('heartbeat');
         wp_add_inline_script('heartbeat', '

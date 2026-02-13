@@ -23,18 +23,24 @@ class Network {
     
     public static function network_page() {
         $sites = get_sites(['number' => 100]);
+        $nonce = wp_create_nonce('atlaspress_network_sync');
         echo '<div class="wrap">';
         echo '<h1>AtlasPress Network</h1>';
-        echo '<div id="atlaspress-network-app" data-sites="' . esc_attr(wp_json_encode($sites)) . '"></div>';
+        echo '<div id="atlaspress-network-app" data-sites="' . esc_attr(wp_json_encode($sites)) . '" data-nonce="' . esc_attr($nonce) . '"></div>';
         echo '</div>';
     }
     
     public static function sync_content() {
         if(!current_user_can('manage_network')) wp_die('Unauthorized');
+        check_ajax_referer('atlaspress_network_sync', 'nonce');
         
-        $source_site = (int)$_POST['source_site'];
-        $target_sites = array_map('intval', $_POST['target_sites']);
-        $content_types = array_map('intval', $_POST['content_types']);
+        $source_site = (int)($_POST['source_site'] ?? 0);
+        $target_sites = isset($_POST['target_sites']) && is_array($_POST['target_sites']) ? array_map('intval', $_POST['target_sites']) : [];
+        $content_types = isset($_POST['content_types']) && is_array($_POST['content_types']) ? array_map('intval', $_POST['content_types']) : [];
+
+        if($source_site <= 0 || empty($target_sites) || empty($content_types)) {
+            wp_send_json_error(['message' => 'Invalid sync payload']);
+        }
         
         switch_to_blog($source_site);
         global $wpdb;

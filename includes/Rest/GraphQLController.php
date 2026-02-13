@@ -1,6 +1,7 @@
 <?php
 namespace AtlasPress\Rest;
 
+use AtlasPress\Core\Permissions;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
@@ -9,7 +10,7 @@ class GraphQLController {
 
     public static function register() {
         register_rest_route('atlaspress/v1','/graphql',[
-            ['methods'=>['GET','POST'],'callback'=>[self::class,'query'],'permission_callback'=>'__return_true']
+            ['methods'=>['GET','POST'],'callback'=>[self::class,'query'],'permission_callback'=>[Permissions::class, 'can_edit_entries']]
         ]);
     }
 

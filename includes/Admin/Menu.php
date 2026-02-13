@@ -8,6 +8,8 @@ use AtlasPress\Admin\Pages\SetupWizard;
 use AtlasPress\Admin\Pages\SecuritySettings;
 use AtlasPress\Admin\Pages\Webhooks;
 use AtlasPress\Core\Permissions;
+use AtlasPress\Pro\LicenseManager;
+use AtlasPress\Pro\Pages\License;
 
 class Menu {
     public static function register() {
@@ -37,6 +39,11 @@ class Menu {
         
         if(Permissions::can_manage_types()) {
             add_submenu_page('atlaspress','Webhooks','Webhooks','atlaspress_manage_types','atlaspress-webhooks',[\AtlasPress\Admin\Pages\Webhooks::class,'render']);
+        }
+        
+        if(Permissions::can_manage_types()) {
+            $badge = LicenseManager::is_pro_active() ? '' : ' <span style="color: #f0b849;">★</span>';
+            add_submenu_page('atlaspress','Pro License' . $badge,'Pro License' . $badge,'atlaspress_manage_types','atlaspress-pro',[License::class,'render']);
         }
         
         add_submenu_page('atlaspress','Help','Help','read','atlaspress-help',[\AtlasPress\Admin\Pages\Help::class,'render']);

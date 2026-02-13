@@ -11,14 +11,6 @@ use WP_Error;
 class ContentTypesController {
 
     public static function register() {
-        // Bypass rate limiting for admin users
-        add_filter('rest_request_before_callbacks', function($response, $handler, $request) {
-            if (strpos($request->get_route(), '/atlaspress/v1/') === 0) {
-                remove_filter('rest_request_before_callbacks', 'rest_cookie_check_errors', 100);
-            }
-            return $response;
-        }, 10, 3);
-        
         register_rest_route('atlaspress/v1','/content-types/bulk-delete',[
             ['methods'=>'POST','callback'=>[self::class,'bulk_delete'],'permission_callback'=>[Permissions::class,'can_manage_types']]
         ]);

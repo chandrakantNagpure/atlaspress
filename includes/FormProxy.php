@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress;
 
+use AtlasPress\Core\ApiSecurity;
+use WP_Error;
+use WP_REST_Request;
+
 class FormProxy {
     
     public static function init() {
@@ -27,10 +31,19 @@ class FormProxy {
         ]);
     }
     
-    public static function capture_submission($request) {
+    public static function capture_submission(WP_REST_Request $request) {
         global $wpdb;
+
+        $auth = self::authorize_request($request);
+        if (is_wp_error($auth)) {
+            return $auth;
+        }
         
         $data = $request->get_json_params();
+        if (!is_array($data)) {
+            return new WP_Error('invalid_data', 'Invalid request payload', ['status' => 400]);
+        }
+
         $formType = $data['_formType'] ?? 'unknown';
         $formId = $data['_formId'] ?? 'unknown';
         $url = $data['_pageUrl'] ?? '';
@@ -80,8 +93,54 @@ class FormProxy {
             elseif (is_numeric($value)) $type = 'number';
             elseif (strlen($value) > 100) $type = 'textarea';
             
-            $schema[] = ['name' => $key, 'type' => $type, 'validation' => []];
+            $schema[] = ['name' => sanitize_key($key), 'type' => $type, 'validation' => []];
         }
         return $schema;
+    }
+
+    private static function authorize_request(WP_REST_Request $request) {
+        $policy = ApiSecurity::get_signature_policy();
+        $require_signed_default = !empty($policy['require_signed_form_capture']);
+        $allow_legacy_default = !empty($policy['allow_legacy_signed_ingest']);
+
+        $require_signed = (bool) apply_filters('atlaspress_require_signed_form_capture', $require_signed_default, $request);
+        $allow_legacy = (bool) apply_filters('atlaspress_allow_legacy_signed_ingest', $allow_legacy_default, $request);
+
+        $secret = (string) get_option('atlaspress_form_capture_secret', '');
+        if (trim($secret) === '') {
+            $secret = (string) get_option('atlaspress_webhook_secret', '');
+        }
+
+        if (trim($secret) === '') {
+            if ($require_signed) {
+                return new WP_Error('secret_not_configured', 'Form capture secret is not configured for signed request verification', ['status' => 503]);
+            }
+            return true;
+        }
+
+        if ($require_signed || ApiSecurity::has_signature_headers($request)) {
+            $verification = ApiSecurity::verify_signed_request($request, $secret, [
+                'require_nonce' => true,
+                'allow_legacy_signatures' => $allow_legacy,
+                'replay_context' => 'form_capture',
+            ]);
+
+            if (is_wp_error($verification)) {
+                return $verification;
+            }
+
+            return true;
+        }
+
+        $provided = $request->get_header('X-AtlasPress-Secret');
+        if (!is_string($provided) || $provided === '') {
+            $provided = $request->get_param('secret');
+        }
+
+        if (!is_string($provided) || !hash_equals($secret, $provided)) {
+            return new WP_Error('forbidden', 'Invalid capture secret', ['status' => 403]);
+        }
+
+        return true;
     }
 }
