@@ -35,10 +35,10 @@ class Network {
     
     public static function sync_content() {
         if(!current_user_can('manage_network')) wp_die('Unauthorized');
-        
-        $source_site = (int)$_POST['source_site'];
-        $target_sites = array_map('intval', $_POST['target_sites']);
-        $content_types = array_map('intval', $_POST['content_types']);
+
+        $source_site = isset( $_POST['source_site'] ) ? (int) $_POST['source_site'] : 0;
+        $target_sites = isset( $_POST['target_sites'] ) ? array_map('intval', (array) $_POST['target_sites'] ) : array();
+        $content_types = isset( $_POST['content_types'] ) ? array_map('intval', (array) $_POST['content_types'] ) : array();
         
         switch_to_blog($source_site);
         global $wpdb;

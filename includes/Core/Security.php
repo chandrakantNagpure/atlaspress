@@ -68,14 +68,14 @@ class Security {
     
     private static function get_client_ip() {
         $headers = ['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'];
-        
+
         foreach($headers as $header) {
-            if(!empty($_SERVER[$header])) {
-                $ips = explode(',', $_SERVER[$header]);
+            if(isset($_SERVER[$header])) {
+                $ips = explode(',', sanitize_text_field( wp_unslash( $_SERVER[$header] ) ));
                 return trim($ips[0]);
             }
         }
-        
-        return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+        return isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
     }
 }

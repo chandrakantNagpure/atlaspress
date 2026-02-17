@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SecuritySettings {
     
     public static function render() {
-        if($_POST['action'] ?? '' === 'save_security_settings') {
+        if ( isset( $_POST['action'] ) && $_POST['action'] === 'save_security_settings' ) {
             self::save_settings();
         }
         
@@ -24,6 +24,7 @@ class SecuritySettings {
             
             <form method="post" style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                 <input type="hidden" name="action" value="save_security_settings">
+                <?php wp_nonce_field( 'atlaspress_security_settings', 'atlaspress_nonce' ); ?>
                 
                 <h2>🔑 API Keys</h2>
                 <div id="atlaspress-security-app" 
@@ -38,10 +39,16 @@ class SecuritySettings {
     }
     
     private static function save_settings() {
-        if(!current_user_can('manage_options')) return;
-        
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        if ( ! isset( $_POST['atlaspress_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['atlaspress_nonce'] ) ), 'atlaspress_security_settings' ) ) {
+            return;
+        }
+
         // Save allowed origins
-        $origins = array_filter(array_map('trim', explode("\n", $_POST['allowed_origins'] ?? '')));
+        $origins = isset( $_POST['allowed_origins'] ) ? array_filter( array_map( 'trim', explode( "\n", sanitize_text_field( wp_unslash( $_POST['allowed_origins'] ) ) ) ) ) : array();
         ApiSecurity::set_allowed_origins($origins);
         
         // Generate webhook secret if not exists
@@ -50,8 +57,8 @@ class SecuritySettings {
         }
         
         // Generate new API key if requested
-        if(!empty($_POST['generate_api_key'])) {
-            $key_name = sanitize_text_field($_POST['api_key_name'] ?: 'Generated Key');
+        if ( ! empty( $_POST['generate_api_key'] ) ) {
+            $key_name = isset( $_POST['api_key_name'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key_name'] ) ) : 'Generated Key';
             $new_key = ApiSecurity::generate_api_key($key_name);
             set_transient('atlaspress_new_api_key', $new_key, 300); // Show for 5 minutes
         }

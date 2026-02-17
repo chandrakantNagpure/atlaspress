@@ -96,14 +96,14 @@ class Loader
         }
 
         if (isset($_POST['generate_api_key'])) {
-            $key_name = sanitize_text_field($_POST['api_key_name'] ?? 'Generated Key');
+            $key_name = isset( $_POST['api_key_name'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key_name'] ) ) : 'Generated Key';
             $api_key = \AtlasPress\Core\ApiSecurity::generate_api_key($key_name);
             wp_send_json_success(['api_key' => $api_key]);
             return;
         }
 
         if (isset($_POST['allowed_origins'])) {
-            $origins = array_filter(array_map('trim', explode("\n", sanitize_textarea_field($_POST['allowed_origins']))));
+            $origins = isset( $_POST['allowed_origins'] ) ? array_filter( array_map( 'trim', explode( "\n", sanitize_textarea_field( wp_unslash( $_POST['allowed_origins'] ) ) ) ) ) : array();
             \AtlasPress\Core\ApiSecurity::set_allowed_origins($origins);
             wp_send_json_success(['message' => 'Settings saved successfully']);
             return;
@@ -121,7 +121,7 @@ class Loader
             return;
         }
 
-        $webhooks = json_decode(stripslashes($_POST['webhooks']), true);
+        $webhooks = json_decode( stripslashes( sanitize_text_field( wp_unslash( $_POST['webhooks'] ) ) ), true );
         update_option('atlaspress_webhooks', $webhooks);
         wp_send_json_success(['message' => 'Webhooks saved']);
     }
@@ -135,7 +135,7 @@ class Loader
             return;
         }
 
-        $origins = array_filter(array_map('trim', explode("\n", sanitize_textarea_field($_POST['allowed_origins']))));
+        $origins = isset( $_POST['allowed_origins'] ) ? array_filter( array_map( 'trim', explode( "\n", sanitize_textarea_field( wp_unslash( $_POST['allowed_origins'] ) ) ) ) ) : array();
         \AtlasPress\Core\ApiSecurity::set_allowed_origins($origins);
         wp_send_json_success(['message' => 'CORS settings saved']);
     }

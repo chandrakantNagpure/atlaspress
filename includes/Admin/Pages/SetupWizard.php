@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SetupWizard {
     
     public static function render() {
-        $step = $_GET['step'] ?? 'welcome';
+        $step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : 'welcome';
         
         echo '<div class="wrap">';
         echo '<h1>AtlasPress Setup Wizard</h1>';
@@ -25,13 +25,13 @@ class SetupWizard {
         }
         
         // Verify nonce
-        if(!wp_verify_nonce($_POST['nonce'] ?? '', 'atlaspress_setup')) {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'atlaspress_setup' ) ) {
             wp_send_json_error('Invalid nonce');
             return;
         }
-        
-        $setup_type = sanitize_text_field($_POST['setup_type'] ?? '');
-        $project_name = sanitize_text_field($_POST['project_name'] ?? '');
+
+        $setup_type = isset( $_POST['setup_type'] ) ? sanitize_text_field( wp_unslash( $_POST['setup_type'] ) ) : '';
+        $project_name = isset( $_POST['project_name'] ) ? sanitize_text_field( wp_unslash( $_POST['project_name'] ) ) : '';
         
         if (empty($setup_type) || empty($project_name)) {
             wp_send_json_error('Missing required fields');
@@ -64,7 +64,7 @@ class SetupWizard {
             wp_send_json_success(['redirect' => admin_url('admin.php?page=atlaspress')]);
             
         } catch(Exception $e) {
-            error_log('AtlasPress Setup Error: ' . $e->getMessage());
+            error_log( 'AtlasPress Setup Error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             wp_send_json_error('Setup failed: ' . $e->getMessage());
         }
     }
@@ -76,7 +76,7 @@ class SetupWizard {
         }
         
         // Verify nonce
-        if(!wp_verify_nonce($_POST['nonce'] ?? '', 'atlaspress_setup')) {
+        if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'atlaspress_setup' ) ) {
             wp_send_json_error('Invalid nonce');
             return;
         }
@@ -109,7 +109,7 @@ class SetupWizard {
             wp_send_json_success(['redirect' => admin_url('admin.php?page=atlaspress-setup')]);
             
         } catch(Exception $e) {
-            error_log('AtlasPress Reset Error: ' . $e->getMessage());
+            error_log( 'AtlasPress Reset Error: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             wp_send_json_error('Reset failed: ' . $e->getMessage());
         }
     }

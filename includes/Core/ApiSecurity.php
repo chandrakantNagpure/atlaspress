@@ -102,7 +102,7 @@ class ApiSecurity {
     }
     
     private static function get_bearer_token() {
-        $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $header = isset( $_SERVER['HTTP_AUTHORIZATION'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_AUTHORIZATION'] ) ) : '';
         if(preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
             return $matches[1];
         }
@@ -133,7 +133,7 @@ class ApiSecurity {
 
     private static function add_cors_headers() {
         $allowed_origins = get_option('atlaspress_allowed_origins', []);
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        $origin = isset( $_SERVER['HTTP_ORIGIN'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_ORIGIN'] ) ) : '';
         if ($origin && (empty($allowed_origins) || in_array($origin, $allowed_origins, true))) {
             header('Access-Control-Allow-Origin: ' . $origin);
             header('Vary: Origin');
@@ -147,7 +147,7 @@ class ApiSecurity {
 
     public static function send_cors_headers() {
         // Ensure CORS headers are sent even on auth errors for AtlasPress routes
-        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
         if (strpos($uri, '/wp-json/atlaspress/v1/') !== false) {
             self::add_cors_headers();
         }
