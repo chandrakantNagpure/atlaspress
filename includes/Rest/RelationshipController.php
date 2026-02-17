@@ -24,16 +24,19 @@ class RelationshipController {
         $search = sanitize_text_field($req->get_param('search'));
         
         $table = $wpdb->prefix.'atlaspress_entries';
-        $query = $wpdb->prepare("SELECT id, title, slug FROM $table WHERE content_type_id=%d", $type_id);
         
         if($search) {
             $like_search = '%' . $wpdb->esc_like($search) . '%';
-            $query .= $wpdb->prepare(" AND title LIKE %s", $like_search);
+            $entries = $wpdb->get_results(
+                $wpdb->prepare("SELECT id, title, slug FROM $table WHERE content_type_id=%d AND title LIKE %s ORDER BY title ASC LIMIT 50", $type_id, $like_search),
+                ARRAY_A
+            );
+        } else {
+            $entries = $wpdb->get_results(
+                $wpdb->prepare("SELECT id, title, slug FROM $table WHERE content_type_id=%d ORDER BY title ASC LIMIT 50", $type_id),
+                ARRAY_A
+            );
         }
-        
-        $query .= " ORDER BY title ASC LIMIT 50";
-        
-        $entries = $wpdb->get_results($query, ARRAY_A);
         
         return new WP_REST_Response($entries, 200);
     }
@@ -48,19 +51,16 @@ class RelationshipController {
         $table = $wpdb->prefix.'atlaspress_entries';
         
         if($type_id) {
-            $query = $wpdb->prepare(
-                "SELECT id, title, content_type_id FROM $table WHERE content_type_id=%d AND MATCH(title, data) AGAINST(%s IN NATURAL LANGUAGE MODE) LIMIT 20",
-                $type_id,
-                $search
+            $results = $wpdb->get_results(
+                $wpdb->prepare("SELECT id, title, content_type_id FROM $table WHERE content_type_id=%d AND MATCH(title, data) AGAINST(%s IN NATURAL LANGUAGE MODE) LIMIT 20", $type_id, $search),
+                ARRAY_A
             );
         } else {
-            $query = $wpdb->prepare(
-                "SELECT id, title, content_type_id FROM $table WHERE MATCH(title, data) AGAINST(%s IN NATURAL LANGUAGE MODE) LIMIT 20",
-                $search
+            $results = $wpdb->get_results(
+                $wpdb->prepare("SELECT id, title, content_type_id FROM $table WHERE MATCH(title, data) AGAINST(%s IN NATURAL LANGUAGE MODE) LIMIT 20", $search),
+                ARRAY_A
             );
         }
-        
-        $results = $wpdb->get_results($query, ARRAY_A);
         
         return new WP_REST_Response($results, 200);
     }

@@ -75,21 +75,20 @@ class GraphQLController {
         global $wpdb;
         $table = $wpdb->prefix.'atlaspress_content_types';
         
-        $query = $wpdb->prepare("SELECT * FROM $table");
-        $params = [];
-        
-        if(isset($args['id'])) {
-            $query .= $wpdb->prepare(" WHERE id=%d", $args['id']);
-        }
-        
-        $query .= " ORDER BY id DESC";
-        
-        if(isset($args['limit'])) {
+        // Build query based on conditions
+        if (isset($args['id']) && isset($args['limit'])) {
+            $id = (int) $args['id'];
             $limit = (int) $args['limit'];
-            $query .= $wpdb->prepare(" LIMIT %d", $limit);
+            $types = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table WHERE id=%d ORDER BY id DESC LIMIT %d", $id, $limit), ARRAY_A);
+        } elseif (isset($args['id'])) {
+            $id = (int) $args['id'];
+            $types = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table WHERE id=%d ORDER BY id DESC", $id), ARRAY_A);
+        } elseif (isset($args['limit'])) {
+            $limit = (int) $args['limit'];
+            $types = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table ORDER BY id DESC LIMIT %d", $limit), ARRAY_A);
+        } else {
+            $types = $wpdb->get_results("SELECT * FROM $table ORDER BY id DESC", ARRAY_A);
         }
-        
-        $types = $wpdb->get_results($query, ARRAY_A);
         
         foreach($types as &$type) {
             $type['settings'] = json_decode($type['settings'], true) ?: [];
@@ -107,23 +106,21 @@ class GraphQLController {
         }
         
         $content_type_id = (int) $args['contentTypeId'];
-        $query = $wpdb->prepare("SELECT * FROM $table WHERE content_type_id=%d", $content_type_id);
+        $status = isset($args['status']) ? sanitize_text_field($args['status']) : '';
+        $limit = isset($args['limit']) ? (int) $args['limit'] : 50;
         
-        if(isset($args['status'])) {
-            $status = sanitize_text_field($args['status']);
-            $query .= $wpdb->prepare(" AND status=%s", $status);
-        }
-        
-        $query .= " ORDER BY id DESC";
-        
-        if(isset($args['limit'])) {
-            $limit = (int) $args['limit'];
-            $query .= $wpdb->prepare(" LIMIT %d", $limit);
+        // Build query based on conditions
+        if ($status) {
+            $entries = $wpdb->get_results(
+                $wpdb->prepare("SELECT * FROM $table WHERE content_type_id=%d AND status=%s ORDER BY id DESC LIMIT %d", $content_type_id, $status, $limit),
+                ARRAY_A
+            );
         } else {
-            $query .= " LIMIT 50";
+            $entries = $wpdb->get_results(
+                $wpdb->prepare("SELECT * FROM $table WHERE content_type_id=%d ORDER BY id DESC LIMIT %d", $content_type_id, $limit),
+                ARRAY_A
+            );
         }
-        
-        $entries = $wpdb->get_results($query, ARRAY_A);
 
         foreach($entries as &$entry) {
             $entry['data'] = json_decode($entry['data'], true) ?: [];
