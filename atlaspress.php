@@ -28,11 +28,7 @@ define( 'ATLASPRESS_DB_VERSION', '1.0.0' );
 add_action(
     'plugins_loaded',
     static function () {
-        load_plugin_textdomain(
-            'atlaspress',
-            false,
-            dirname( plugin_basename( __FILE__ ) ) . '/languages'
-        );
+        // Translations are loaded automatically from languages folder since WordPress 4.6
     }
 );
 

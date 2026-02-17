@@ -34,6 +34,9 @@ class Integration
             $site_url = home_url('/');
         }
         $content_types = self::get_content_types();
+        
+        // Enqueue the script properly
+        wp_enqueue_script('atlaspress-client', plugin_dir_url(dirname(__FILE__)) . '../assets/js/atlaspress-client.js', [], '1.0.0', true);
         ?>
         <div class="wrap">
             <h1>AtlasPress Integration</h1>
@@ -67,7 +70,7 @@ class Integration
             <div class="postbox" style="padding: 20px; margin: 20px 0;">
                 <h2>Available Content Types</h2>
                 <?php if (empty($content_types)): ?>
-                    <p>No content types found. <a href="<?php echo admin_url('admin.php?page=atlaspress-content-types'); ?>">Create
+                    <p>No content types found. <a href="<?php echo esc_url(admin_url('admin.php?page=atlaspress-content-types')); ?>">Create
                             your first content type</a>.</p>
                 <?php else: ?>
                     <table class="wp-list-table widefat fixed striped">
@@ -107,8 +110,7 @@ class Integration
                                 '[data-no-atlaspress]'
                             ]
                         };
-                    </script>
-        <script src="<?php echo esc_url($site_url); ?>/wp-content/plugins/atlaspress/assets/js/atlaspress-client.js"></script></textarea>
+                    </script></textarea>
             </div>
         </div>
         <?php

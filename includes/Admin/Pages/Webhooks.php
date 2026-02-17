@@ -51,12 +51,12 @@ class Webhooks
                         if (!updated[newWebhook.event]) updated[newWebhook.event] = [];
                         updated[newWebhook.event].push({ url: newWebhook.url, secret: newWebhook.secret });
 
-                        fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                        fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                             body: new URLSearchParams({
                                 action: 'atlaspress_save_webhooks',
-                                nonce: '<?php echo wp_create_nonce('atlaspress_webhooks'); ?>',
+                                nonce: '<?php echo esc_attr(wp_create_nonce('atlaspress_webhooks')); ?>',
                                 webhooks: JSON.stringify(updated)
                             })
                         }).then(() => {
@@ -70,12 +70,12 @@ class Webhooks
                         updated[event].splice(index, 1);
                         if (updated[event].length === 0) delete updated[event];
 
-                        fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+                        fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                             body: new URLSearchParams({
                                 action: 'atlaspress_save_webhooks',
-                                nonce: '<?php echo wp_create_nonce('atlaspress_webhooks'); ?>',
+                                nonce: '<?php echo esc_attr(wp_create_nonce('atlaspress_webhooks')); ?>',
                                 webhooks: JSON.stringify(updated)
                             })
                         }).then(() => setWebhooks(updated));

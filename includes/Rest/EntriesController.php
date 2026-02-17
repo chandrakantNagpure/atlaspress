@@ -299,7 +299,7 @@ class EntriesController {
                 'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
                 'type' => $field_type,
                 'required' => false,
-                'id' => time() . rand(1000, 9999)
+                'id' => time() . wp_rand(1000, 9999)
             ];
         }
         

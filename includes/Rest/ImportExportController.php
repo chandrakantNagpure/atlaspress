@@ -152,7 +152,7 @@ class ImportExportController {
         ];
         
         header('Content-Type: application/json');
-        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . date('Y-m-d') . '.json"');
+        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . gmdate('Y-m-d') . '.json"');
         echo wp_json_encode($data, JSON_PRETTY_PRINT);
         exit;
     }
@@ -177,7 +177,7 @@ class ImportExportController {
         }
         
         header('Content-Type: application/xml');
-        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . date('Y-m-d') . '.xml"');
+        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . gmdate('Y-m-d') . '.xml"');
         echo $xml->asXML();
         exit;
     }
@@ -188,7 +188,7 @@ class ImportExportController {
         }
         
         header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . date('Y-m-d') . '.csv"');
+        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . gmdate('Y-m-d') . '.csv"');
         
         $output = fopen('php://output', 'w');
         

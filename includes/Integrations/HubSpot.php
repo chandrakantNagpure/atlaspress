@@ -50,7 +50,7 @@ class HubSpot {
         
         $wpdb->insert($wpdb->prefix . 'atlaspress_entries', [
             'content_type_id' => $contentTypeId,
-            'title' => 'HubSpot Form - ' . date('Y-m-d H:i:s'),
+            'title' => 'HubSpot Form - ' . gmdate('Y-m-d H:i:s'),
             'slug' => 'hubspot-' . time(),
             'data' => json_encode($formData),
             'status' => 'published',

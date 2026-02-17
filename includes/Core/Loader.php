@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use AtlasPress\Admin\Menu;
 use AtlasPress\Rest\ContentTypesController;
 use AtlasPress\Rest\DashboardController;

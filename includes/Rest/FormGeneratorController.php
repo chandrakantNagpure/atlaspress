@@ -18,7 +18,7 @@ class FormGeneratorController {
     
     public function poll_entries($request) {
         global $wpdb;
-        $lastCheck = $request->get_param('last_check') ?: date('Y-m-d H:i:s', strtotime('-1 minute'));
+        $lastCheck = $request->get_param('last_check') ?: gmdate('Y-m-d H:i:s', strtotime('-1 minute'));
         
         $newEntries = $wpdb->get_results($wpdb->prepare(
             "SELECT e.id, e.title, e.created_at, ct.name as content_type_name, ct.id as content_type_id 

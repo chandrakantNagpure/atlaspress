@@ -66,7 +66,7 @@ class FormProxy {
         // Save entry
         $wpdb->insert("{$wpdb->prefix}atlaspress_entries", [
             'content_type_id' => $contentTypeId,
-            'title' => 'Form Submission - ' . date('Y-m-d H:i:s'),
+            'title' => 'Form Submission - ' . gmdate('Y-m-d H:i:s'),
             'data' => json_encode($data),
             'status' => 'published',
             'created_at' => current_time('mysql')
