@@ -1,0 +1,233 @@
+/* NEW CLEAN ENTRIES PAGE LAYOUT */
+.atlaspress-entries-page {
+    background: #fafafa;
+    margin: -10px -20px -20px -20px;
+    padding: 20px;
+    min-height: calc(100vh - 32px);
+}
+
+.atlaspress-entries-page h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 20px 0;
+}
+
+/* Top Bar */
+.atlaspress-topbar {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.atlaspress-topbar select {
+    min-width: 220px;
+    max-width: 300px;
+    height: 36px;
+    padding-right: 32px;
+}
+
+.atlaspress-topbar-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* Search Bar */
+.atlaspress-searchbar {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.atlaspress-searchbar input {
+    flex: 1;
+    max-width: 400px;
+    height: 36px;
+}
+
+.atlaspress-searchbar select {
+    width: 180px;
+    height: 36px;
+    padding-right: 32px;
+}
+
+/* Content Box */
+.atlaspress-content-box {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Stats Header */
+.atlaspress-stats-header {
+    padding: 12px 16px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.atlaspress-stats-left {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.atlaspress-stats-left strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.atlaspress-stats-right {
+    display: flex;
+    gap: 6px;
+}
+
+/* Table */
+.atlaspress-clean-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.atlaspress-clean-table thead {
+    background: #f9fafb;
+}
+
+.atlaspress-clean-table th {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.atlaspress-clean-table tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.atlaspress-clean-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.atlaspress-clean-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.atlaspress-clean-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #374151;
+    vertical-align: middle;
+}
+
+.atlaspress-clean-table .col-check {
+    width: 40px;
+}
+
+.atlaspress-clean-table .col-id {
+    width: 60px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.atlaspress-clean-table .col-title {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.atlaspress-clean-table .col-data {
+    max-width: 300px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.atlaspress-clean-table .col-date {
+    width: 160px;
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.atlaspress-clean-table .col-actions {
+    width: 100px;
+    text-align: right;
+}
+
+.atlaspress-clean-table .data-row {
+    margin-bottom: 3px;
+}
+
+.atlaspress-clean-table .data-row:last-child {
+    margin-bottom: 0;
+}
+
+.atlaspress-clean-table .data-label {
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.atlaspress-actions-group {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+}
+
+/* Empty State */
+.atlaspress-empty-box {
+    padding: 48px 20px;
+    text-align: center;
+}
+
+.atlaspress-empty-box h3 {
+    font-size: 16px;
+    color: #6b7280;
+    margin: 0 0 8px 0;
+}
+
+.atlaspress-empty-box p {
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 0 0 16px 0;
+}
+
+.atlaspress-code-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.atlaspress-code-box h4 {
+    font-size: 13px;
+    margin: 0 0 8px 0;
+    color: #1f2937;
+}
+
+.atlaspress-code-box pre {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 11px;
+    margin: 0;
+    overflow-x: auto;
+    line-height: 1.5;
+}
