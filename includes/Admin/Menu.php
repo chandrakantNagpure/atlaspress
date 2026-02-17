@@ -17,6 +17,7 @@ class Menu
     public static function register()
     {
         $setup_completed = get_option('atlaspress_setup_completed', false);
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $reconfigure = isset($_GET['reconfigure']) && $_GET['reconfigure'] == '1';
 
         if (!$setup_completed || $reconfigure) {
