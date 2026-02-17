@@ -75,24 +75,21 @@ class GraphQLController {
         global $wpdb;
         $table = $wpdb->prefix.'atlaspress_content_types';
         
-        $query = "SELECT * FROM $table";
+        $query = $wpdb->prepare("SELECT * FROM $table");
         $params = [];
         
         if(isset($args['id'])) {
-            $query .= " WHERE id=%d";
-            $params[] = $args['id'];
+            $query .= $wpdb->prepare(" WHERE id=%d", $args['id']);
         }
         
         $query .= " ORDER BY id DESC";
         
         if(isset($args['limit'])) {
-            $query .= " LIMIT %d";
-            $params[] = $args['limit'];
+            $limit = (int) $args['limit'];
+            $query .= $wpdb->prepare(" LIMIT %d", $limit);
         }
         
-        $types = $params 
-            ? $wpdb->get_results($wpdb->prepare($query, ...$params), ARRAY_A)
-            : $wpdb->get_results($query, ARRAY_A);
+        $types = $wpdb->get_results($query, ARRAY_A);
         
         foreach($types as &$type) {
             $type['settings'] = json_decode($type['settings'], true) ?: [];
@@ -109,25 +106,24 @@ class GraphQLController {
             throw new \Exception('contentTypeId is required');
         }
         
-        $query = "SELECT * FROM $table WHERE content_type_id=%d";
-        $params = [$args['contentTypeId']];
+        $content_type_id = (int) $args['contentTypeId'];
+        $query = $wpdb->prepare("SELECT * FROM $table WHERE content_type_id=%d", $content_type_id);
         
         if(isset($args['status'])) {
-            $query .= " AND status=%s";
-            $params[] = $args['status'];
+            $status = sanitize_text_field($args['status']);
+            $query .= $wpdb->prepare(" AND status=%s", $status);
         }
         
         $query .= " ORDER BY id DESC";
         
         if(isset($args['limit'])) {
-            $query .= " LIMIT %d";
-            $params[] = $args['limit'];
+            $limit = (int) $args['limit'];
+            $query .= $wpdb->prepare(" LIMIT %d", $limit);
         } else {
             $query .= " LIMIT 50";
-            $params[] = 50;
         }
         
-        $entries = $wpdb->get_results($wpdb->prepare($query, ...$params), ARRAY_A);
+        $entries = $wpdb->get_results($query, ARRAY_A);
 
         foreach($entries as &$entry) {
             $entry['data'] = json_decode($entry['data'], true) ?: [];

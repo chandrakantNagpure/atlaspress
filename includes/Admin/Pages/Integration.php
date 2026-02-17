@@ -56,8 +56,7 @@ class Integration
                             contentTypeId: 1,
                             debug: true
                         };
-                    </script>
-        <script src="<?php echo esc_url($site_url); ?>/wp-content/plugins/atlaspress/assets/js/atlaspress-client.js"></script></textarea>
+                    </script></textarea>
 
                 <p><strong>That's it!</strong> The script will automatically:</p>
                 <ul>
