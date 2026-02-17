@@ -178,6 +178,7 @@ class ImportExportController {
         
         header('Content-Type: application/xml');
         header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . gmdate('Y-m-d') . '.xml"');
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $xml->asXML();
         exit;
     }
@@ -220,6 +221,7 @@ class ImportExportController {
             fputcsv($output, $row);
         }
         
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
         fclose($output);
         exit;
     }
