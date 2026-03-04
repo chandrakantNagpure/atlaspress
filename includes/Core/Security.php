@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Security {
     
     public static function init() {
@@ -67,11 +71,16 @@ class Security {
         
         foreach($headers as $header) {
             if(!empty($_SERVER[$header])) {
-                $ips = explode(',', $_SERVER[$header]);
-                return trim($ips[0]);
+                $raw = sanitize_text_field(wp_unslash($_SERVER[$header]));
+                $ips = explode(',', $raw);
+                $ip = trim($ips[0]);
+                if(filter_var($ip, FILTER_VALIDATE_IP)) {
+                    return $ip;
+                }
             }
         }
         
-        return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $remote = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
+        return filter_var($remote, FILTER_VALIDATE_IP) ? $remote : '0.0.0.0';
     }
 }

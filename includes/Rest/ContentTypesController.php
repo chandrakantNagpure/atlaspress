@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Rest;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use AtlasPress\Core\FieldTypes;
 use AtlasPress\Core\Permissions;
 use AtlasPress\Core\Cache;

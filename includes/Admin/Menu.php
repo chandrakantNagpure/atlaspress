@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Admin;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use AtlasPress\Admin\Pages\Dashboard;
 use AtlasPress\Admin\Pages\ContentTypes;
 use AtlasPress\Admin\Pages\Entries;
@@ -12,16 +16,16 @@ class Menu
 {
     public static function register()
     {
-        $setup_completed = get_option('atlaspress_setup_completed', false);
-        $reconfigure = isset($_GET['reconfigure']) && $_GET['reconfigure'] == '1';
+        $setup_completed = get_option('atlasly_setup_completed', false);
+        $reconfigure = isset($_GET['reconfigure']) && '1' === sanitize_text_field(wp_unslash($_GET['reconfigure']));
 
         if (!$setup_completed || $reconfigure) {
-            add_menu_page('AtlasPress Setup', 'AtlasPress Setup', 'manage_options', 'atlaspress-setup', [SetupWizard::class, 'render'], 'dashicons-database', 25);
+            add_menu_page('Atlasly Setup', 'Atlasly Setup', 'manage_options', 'atlaspress-setup', [SetupWizard::class, 'render'], 'dashicons-database', 80);
             return;
         }
 
         if (Permissions::can_view_dashboard()) {
-            add_menu_page('AtlasPress', 'AtlasPress', 'atlaspress_view_dashboard', 'atlaspress', [Dashboard::class, 'render'], 'dashicons-database', 25);
+            add_menu_page('Atlasly', 'Atlasly', 'atlaspress_view_dashboard', 'atlaspress', [Dashboard::class, 'render'], 'dashicons-database', 80);
         }
 
         if (Permissions::can_manage_types()) {

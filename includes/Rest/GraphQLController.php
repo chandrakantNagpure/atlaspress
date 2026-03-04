@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Rest;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
@@ -80,19 +84,25 @@ class GraphQLController {
         
         if(isset($args['id'])) {
             $query .= " WHERE id=%d";
-            $params[] = $args['id'];
+            $params[] = absint($args['id']);
         }
         
         $query .= " ORDER BY id DESC";
         
         if(isset($args['limit'])) {
             $query .= " LIMIT %d";
-            $params[] = $args['limit'];
+            $params[] = absint($args['limit']);
         }
         
-        $types = $params 
-            ? $wpdb->get_results($wpdb->prepare($query, ...$params), ARRAY_A)
-            : $wpdb->get_results($query, ARRAY_A);
+        // Use prepare when there are params, otherwise query is safe without placeholders
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        if ($params) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $types = $wpdb->get_results($wpdb->prepare($query, ...$params), ARRAY_A);
+        } else {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $types = $wpdb->get_results($query, ARRAY_A);
+        }
         
         foreach($types as &$type) {
             $type['settings'] = json_decode($type['settings'], true) ?: [];
@@ -103,7 +113,7 @@ class GraphQLController {
 
     private static function getEntries($args, $fields) {
         global $wpdb;
-        $table = $wpdb->prefix.'atlaspress_entries';
+        $table = $wpdb->prefix.'atlasly_entries';
         
         if(!isset($args['contentTypeId'])) {
             throw new \Exception('contentTypeId is required');
@@ -121,12 +131,13 @@ class GraphQLController {
         
         if(isset($args['limit'])) {
             $query .= " LIMIT %d";
-            $params[] = $args['limit'];
+            $params[] = absint($args['limit']);
         } else {
-            $query .= " LIMIT 50";
+            $query .= " LIMIT %d";
             $params[] = 50;
         }
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $entries = $wpdb->get_results($wpdb->prepare($query, ...$params), ARRAY_A);
 
         foreach($entries as &$entry) {
@@ -138,7 +149,7 @@ class GraphQLController {
 
     private static function getEntry($args, $fields) {
         global $wpdb;
-        $table = $wpdb->prefix.'atlaspress_entries';
+        $table = $wpdb->prefix.'atlasly_entries';
         
         if(!isset($args['id'])) {
             throw new \Exception('id is required');

@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Version {
     
     const CURRENT_VERSION = '1.0.0';
@@ -12,7 +16,7 @@ class Version {
     }
     
     public static function check_version() {
-        $installed_version = get_option('atlaspress_version', '0.0.0');
+        $installed_version = get_option('atlasly_version', '0.0.0');
         
         if(version_compare($installed_version, self::CURRENT_VERSION, '<')) {
             self::upgrade($installed_version);
@@ -30,8 +34,8 @@ class Version {
         }
         
         // Update version
-        update_option('atlaspress_version', self::CURRENT_VERSION);
-        update_option('atlaspress_db_version', self::DB_VERSION);
+        update_option('atlasly_version', self::CURRENT_VERSION);
+        update_option('atlasly_db_version', self::DB_VERSION);
         
         // Clear cache after upgrade
         Cache::flush();
@@ -65,7 +69,8 @@ class Version {
     public static function upgrade_completed($upgrader_object, $options) {
         if($options['type'] == 'plugin' && isset($options['plugins'])) {
             foreach($options['plugins'] as $plugin) {
-                if($plugin == plugin_basename(ATLASPRESS_PATH . 'atlaspress.php')) {
+                $new_main = plugin_basename(ATLASLY_PATH . 'atlasly-content-manager.php');
+                if($plugin === $new_main) {
                     self::check_version();
                     break;
                 }
@@ -76,12 +81,12 @@ class Version {
     public static function get_version_info() {
         return [
             'current' => self::CURRENT_VERSION,
-            'installed' => get_option('atlaspress_version', '0.0.0'),
+            'installed' => get_option('atlasly_version', '0.0.0'),
             'db_version' => self::DB_VERSION,
-            'installed_db' => get_option('atlaspress_db_version', '0.0.0'),
-            'setup_completed' => get_option('atlaspress_setup_completed', false),
-            'setup_type' => get_option('atlaspress_setup_type', ''),
-            'install_date' => get_option('atlaspress_install_date', '')
+            'installed_db' => get_option('atlasly_db_version', '0.0.0'),
+            'setup_completed' => get_option('atlasly_setup_completed', false),
+            'setup_type' => get_option('atlasly_setup_type', ''),
+            'install_date' => get_option('atlasly_install_date', '')
         ];
     }
 }

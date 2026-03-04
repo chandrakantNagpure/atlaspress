@@ -36,7 +36,7 @@ class CLI {
         $types_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}atlaspress_content_types");
         $entries_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}atlaspress_entries");
         
-        \WP_CLI::line("AtlasPress Statistics:");
+        \WP_CLI::line("Atlasly Statistics:");
         \WP_CLI::line("Content Types: $types_count");
         \WP_CLI::line("Entries: $entries_count");
         
@@ -67,7 +67,7 @@ class CLI {
         $entries = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}atlaspress_entries", ARRAY_A);
         
         $data = [
-            'version' => ATLASPRESS_VERSION,
+            'version' => ATLASLY_VERSION,
             'export_date' => current_time('mysql'),
             'content_types' => $types,
             'entries' => $entries
@@ -109,7 +109,7 @@ class CLI {
     }
     
     private static function show_help() {
-        \WP_CLI::line("AtlasPress CLI Commands:");
+        \WP_CLI::line("Atlasly CLI Commands:");
         \WP_CLI::line("  stats          Show statistics");
         \WP_CLI::line("  cache clear    Clear cache");
         \WP_CLI::line("  cache status   Show cache status");

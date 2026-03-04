@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Admin\Pages;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Integration
 {
 
@@ -30,9 +34,10 @@ class Integration
             $site_url = home_url('/');
         }
         $content_types = self::get_content_types();
+        $client_script = ATLASLY_URL . 'assets/js/atlaspress-client.js';
         ?>
         <div class="wrap">
-            <h1>AtlasPress Integration</h1>
+            <h1>Atlasly Integration</h1>
             <p>Copy and paste this code into any website to automatically track all form submissions.</p>
 
             <div class="postbox" style="padding: 20px; margin: 20px 0;">
@@ -43,27 +48,27 @@ class Integration
                 </p>
 
                 <textarea readonly
-                    style="width: 100%; height: 120px; font-family: monospace; font-size: 12px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;"><script>
+                    style="width: 100%; height: 120px; font-family: monospace; font-size: 12px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;">&lt;script&gt;
                         window.atlasPressConfig = {
                             baseUrl: '<?php echo esc_js($site_url); ?>',
                             contentTypeId: 1,
                             debug: true
                         };
-                    </script>
-        <script src="<?php echo esc_url($site_url); ?>/wp-content/plugins/atlaspress/assets/js/atlaspress-client.js"></script></textarea>
+                    &lt;/script&gt;
+        &lt;script src="<?php echo esc_url($client_script); ?>"&gt;&lt;/script&gt;</textarea>
 
                 <p><strong>That's it!</strong> The script will automatically:</p>
                 <ul>
                     <li>Detect all forms on the page</li>
                     <li>Capture form submissions</li>
-                    <li>Send data to your WordPress AtlasPress plugin</li>
+                    <li>Send data to your WordPress Atlasly plugin</li>
                 </ul>
             </div>
 
             <div class="postbox" style="padding: 20px; margin: 20px 0;">
                 <h2>Available Content Types</h2>
                 <?php if (empty($content_types)): ?>
-                    <p>No content types found. <a href="<?php echo admin_url('admin.php?page=atlaspress-content-types'); ?>">Create
+                    <p>No content types found. <a href="<?php echo esc_url(admin_url('admin.php?page=atlaspress-content-types')); ?>">Create
                             your first content type</a>.</p>
                 <?php else: ?>
                     <table class="wp-list-table widefat fixed striped">
@@ -92,7 +97,7 @@ class Integration
                 <p>For more control, you can customize the configuration:</p>
 
                 <textarea readonly
-                    style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;"><script>
+                    style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;">&lt;script&gt;
                         window.atlasPressConfig = {
                             baseUrl: '<?php echo esc_js($site_url); ?>',
                             contentTypeId: 1,
@@ -103,8 +108,8 @@ class Integration
                                 '[data-no-atlaspress]'
                             ]
                         };
-                    </script>
-        <script src="<?php echo esc_url($site_url); ?>/wp-content/plugins/atlaspress/assets/js/atlaspress-client.js"></script></textarea>
+                    &lt;/script&gt;
+        &lt;script src="<?php echo esc_url($client_script); ?>"&gt;&lt;/script&gt;</textarea>
             </div>
         </div>
         <?php

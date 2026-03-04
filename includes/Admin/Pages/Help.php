@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Admin\Pages;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Help
 {
 
@@ -8,7 +12,7 @@ class Help
     {
         ?>
         <div class="wrap">
-            <h1>AtlasPress Help & Documentation</h1>
+            <h1>Atlasly Help & Documentation</h1>
 
             <div style="max-width: 1200px;">
 
@@ -16,7 +20,7 @@ class Help
                 <div class="postbox" style="padding: 20px; margin-bottom: 20px;">
                     <h2>🚀 Quick Start Guide</h2>
                     <ol style="line-height: 2;">
-                        <li><strong>Run Setup Wizard:</strong> Go to AtlasPress > Setup and choose your project type</li>
+                        <li><strong>Run Setup Wizard:</strong> Go to Atlasly > Setup and choose your project type</li>
                         <li><strong>Create Content Types:</strong> Define your data structure with custom fields</li>
                         <li><strong>Add Entries:</strong> Submit data via REST API or admin interface</li>
                         <li><strong>Integrate Frontend:</strong> Use REST API or GraphQL to fetch data</li>

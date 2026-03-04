@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class RealTime {
     
     public static function init() {

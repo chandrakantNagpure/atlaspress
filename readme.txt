@@ -1,5 +1,5 @@
-=== AtlasPress ===
-Contributors: chandrakantnagpure
+=== Atlasly Content Manager ===
+Contributors: ashwathama, chandrakantnagpure
 Tags: headless cms, custom fields, rest api, graphql, form submissions
 Requires at least: 5.0
 Tested up to: 6.9
@@ -12,9 +12,9 @@ Schema-driven content types, entries, REST API, GraphQL, and form capture for mo
 
 == Description ==
 
-AtlasPress helps you build schema-driven data models inside WordPress and use them through REST API and GraphQL.
+Atlasly helps you build schema-driven data models inside WordPress and use them through REST API and GraphQL.
 
-Use AtlasPress when you need:
+Use Atlasly when you need:
 
 * Structured content types and entries
 * API-first workflows for headless WordPress
@@ -36,24 +36,24 @@ This free plugin includes:
 
 == Installation ==
 
-1. Upload the `atlaspress` folder to the `/wp-content/plugins/` directory.
-2. Activate AtlasPress from the Plugins screen in WordPress.
-3. Open `AtlasPress > Setup` in the admin area.
+1. Upload the `atlasly-content-manager` folder to the `/wp-content/plugins/` directory.
+2. Activate Atlasly Content Manager from the Plugins screen in WordPress.
+3. Open `Atlasly > Setup` in the admin area.
 4. Create your first content type and start submitting entries.
 
 == Frequently Asked Questions ==
 
-= Is AtlasPress only for developers? =
+= Is Atlasly only for developers? =
 
 No. The setup wizard and admin UI are usable without coding, while developers can integrate through REST API and GraphQL.
 
-= Can I use AtlasPress in a headless WordPress setup? =
+= Can I use Atlasly in a headless WordPress setup? =
 
-Yes. AtlasPress is designed for API-first use cases and works well with frontend frameworks like React and Next.js.
+Yes. Atlasly is designed for API-first use cases and works well with frontend frameworks like React and Next.js.
 
-= Will AtlasPress work on multisite? =
+= Will Atlasly work on multisite? =
 
-Yes. AtlasPress supports WordPress multisite.
+Yes. Atlasly supports WordPress multisite.
 
 == Screenshots ==
 

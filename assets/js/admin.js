@@ -872,6 +872,7 @@ const SecurityApp = () => {
         try {
             const formData = new FormData();
             formData.append('action', 'save_security_settings');
+            formData.append('security_nonce', atlaspress_ajax.security_nonce);
             formData.append('generate_api_key', '1');
             formData.append('api_key_name', newKeyName);
 
@@ -900,6 +901,7 @@ const SecurityApp = () => {
         try {
             const formData = new FormData();
             formData.append('action', 'save_security_settings');
+            formData.append('security_nonce', atlaspress_ajax.security_nonce);
             formData.append('allowed_origins', origins);
 
             const response = await fetch(atlaspress_ajax.ajaxurl, {

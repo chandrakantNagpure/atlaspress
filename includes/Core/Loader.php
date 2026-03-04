@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use AtlasPress\Admin\Menu;
 use AtlasPress\Rest\ContentTypesController;
 use AtlasPress\Rest\DashboardController;
@@ -39,6 +43,7 @@ class Loader
         add_action('rest_api_init', [FormGeneratorController::class, 'register']);
         add_action('wp_ajax_atlaspress_setup', [SetupWizard::class, 'handle_setup']);
         add_action('wp_ajax_atlaspress_reset_setup', [SetupWizard::class, 'handle_reset']);
+        add_action('wp_ajax_atlasly_save_security_settings', [self::class, 'handle_security_settings']);
         add_action('wp_ajax_save_security_settings', [self::class, 'handle_security_settings']);
         add_action('wp_ajax_atlaspress_save_webhooks', [self::class, 'handle_save_webhooks']);
         add_action('wp_ajax_atlaspress_save_cors', [self::class, 'handle_save_cors']);
@@ -56,46 +61,69 @@ class Loader
         if (strpos($hook, 'atlaspress') === false)
             return;
 
-        wp_enqueue_style('atlaspress-admin', ATLASPRESS_URL . 'assets/css/admin.css', [], ATLASPRESS_VERSION);
+        wp_enqueue_style('atlaspress-admin', ATLASLY_URL . 'assets/css/admin.css', [], ATLASLY_VERSION);
 
         // Enqueue entries-specific CSS
         if (strpos($hook, 'atlaspress-entries') !== false) {
-            wp_enqueue_style('atlaspress-entries', ATLASPRESS_URL . 'assets/css/entries.css', ['atlaspress-admin'], ATLASPRESS_VERSION);
+            wp_enqueue_style('atlaspress-entries', ATLASLY_URL . 'assets/css/entries.css', ['atlaspress-admin'], ATLASLY_VERSION);
         }
 
-        wp_enqueue_script('atlaspress-admin', ATLASPRESS_URL . 'assets/js/admin.js', ['wp-element', 'wp-api-fetch'], ATLASPRESS_VERSION, true);
+        wp_enqueue_script('atlaspress-admin', ATLASLY_URL . 'assets/js/admin.js', ['wp-element', 'wp-api-fetch'], ATLASLY_VERSION, true);
 
         // Add ajaxurl for setup wizard
         wp_localize_script('atlaspress-admin', 'atlaspress_ajax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('atlaspress_setup'),
+            'security_nonce' => wp_create_nonce('atlasly_security_settings'),
             'admin_url' => admin_url(),
-            'plugin_url' => ATLASPRESS_URL
+            'plugin_url' => ATLASLY_URL
         ]);
 
         // Add security settings
         wp_localize_script('atlaspress-admin', 'atlaspress_settings', [
-            'allowed_origins' => get_option('atlaspress_allowed_origins', []),
-            'api_keys' => array_keys(get_option('atlaspress_api_keys', []))
+            'allowed_origins' => get_option('atlasly_allowed_origins', []),
+            'api_keys' => array_keys(get_option('atlasly_api_keys', []))
         ]);
+
+        if (strpos($hook, 'atlaspress-webhooks') !== false) {
+            wp_enqueue_script(
+                'atlaspress-webhooks',
+                ATLASLY_URL . 'assets/js/webhooks.js',
+                ['wp-element'],
+                ATLASLY_VERSION,
+                true
+            );
+
+            wp_localize_script('atlaspress-webhooks', 'atlaspress_webhooks_data', [
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('atlaspress_webhooks'),
+                'webhooks' => get_option('atlasly_webhooks', []),
+            ]);
+        }
     }
 
     public static function handle_security_settings()
     {
+        check_ajax_referer('atlasly_security_settings', 'security_nonce');
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Unauthorized');
             return;
         }
 
         if (isset($_POST['generate_api_key'])) {
-            $key_name = sanitize_text_field($_POST['api_key_name'] ?? 'Generated Key');
+            $key_name = isset($_POST['api_key_name']) ? sanitize_text_field(wp_unslash($_POST['api_key_name'])) : 'Generated Key';
+            if ($key_name === '') {
+                $key_name = 'Generated Key';
+            }
             $api_key = \AtlasPress\Core\ApiSecurity::generate_api_key($key_name);
             wp_send_json_success(['api_key' => $api_key]);
             return;
         }
 
         if (isset($_POST['allowed_origins'])) {
-            $origins = array_filter(array_map('trim', explode("\n", sanitize_textarea_field($_POST['allowed_origins']))));
+            $origins_input = sanitize_textarea_field(wp_unslash($_POST['allowed_origins']));
+            $origins = array_filter(array_map('trim', explode("\n", $origins_input)));
             \AtlasPress\Core\ApiSecurity::set_allowed_origins($origins);
             wp_send_json_success(['message' => 'Settings saved successfully']);
             return;
@@ -113,8 +141,36 @@ class Loader
             return;
         }
 
-        $webhooks = json_decode(stripslashes($_POST['webhooks']), true);
-        update_option('atlaspress_webhooks', $webhooks);
+        $webhooks_json = isset($_POST['webhooks']) ? wp_unslash($_POST['webhooks']) : '';
+        $decoded = json_decode($webhooks_json, true);
+        $webhooks = [];
+
+        if (is_array($decoded)) {
+            foreach ($decoded as $event => $hooks) {
+                $event_key = sanitize_key((string) $event);
+                if (!is_array($hooks) || $event_key === '') {
+                    continue;
+                }
+
+                $sanitized_hooks = [];
+                foreach ($hooks as $hook) {
+                    $url = isset($hook['url']) ? esc_url_raw((string) $hook['url']) : '';
+                    $secret = isset($hook['secret']) ? sanitize_text_field((string) $hook['secret']) : '';
+                    if ($url !== '') {
+                        $sanitized_hooks[] = [
+                            'url' => $url,
+                            'secret' => $secret,
+                        ];
+                    }
+                }
+
+                if (!empty($sanitized_hooks)) {
+                    $webhooks[$event_key] = $sanitized_hooks;
+                }
+            }
+        }
+
+        update_option('atlasly_webhooks', $webhooks);
         wp_send_json_success(['message' => 'Webhooks saved']);
     }
 
@@ -127,7 +183,8 @@ class Loader
             return;
         }
 
-        $origins = array_filter(array_map('trim', explode("\n", sanitize_textarea_field($_POST['allowed_origins']))));
+        $origins_input = isset($_POST['allowed_origins']) ? sanitize_textarea_field(wp_unslash($_POST['allowed_origins'])) : '';
+        $origins = array_filter(array_map('trim', explode("\n", $origins_input)));
         \AtlasPress\Core\ApiSecurity::set_allowed_origins($origins);
         wp_send_json_success(['message' => 'CORS settings saved']);
     }

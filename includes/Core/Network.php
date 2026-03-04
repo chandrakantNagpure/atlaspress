@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Network {
     
     public static function init() {
@@ -12,8 +16,8 @@ class Network {
     
     public static function network_menu() {
         add_menu_page(
-            'AtlasPress Network',
-            'AtlasPress Network', 
+            'Atlasly Network',
+            'Atlasly Network', 
             'manage_network',
             'atlaspress-network',
             [self::class, 'network_page'],
@@ -24,17 +28,29 @@ class Network {
     public static function network_page() {
         $sites = get_sites(['number' => 100]);
         echo '<div class="wrap">';
-        echo '<h1>AtlasPress Network</h1>';
+        echo '<h1>Atlasly Network</h1>';
         echo '<div id="atlaspress-network-app" data-sites="' . esc_attr(wp_json_encode($sites)) . '"></div>';
         echo '</div>';
     }
     
     public static function sync_content() {
-        if(!current_user_can('manage_network')) wp_die('Unauthorized');
-        
-        $source_site = (int)$_POST['source_site'];
-        $target_sites = array_map('intval', $_POST['target_sites']);
-        $content_types = array_map('intval', $_POST['content_types']);
+        check_ajax_referer('atlaspress_network_sync', 'nonce');
+
+        if(!current_user_can('manage_network')) {
+            wp_send_json_error(['message' => 'Unauthorized'], 403);
+            return;
+        }
+
+        $source_site = isset($_POST['source_site']) ? absint(wp_unslash($_POST['source_site'])) : 0;
+        $target_sites_raw = isset($_POST['target_sites']) ? (array) wp_unslash($_POST['target_sites']) : [];
+        $content_types_raw = isset($_POST['content_types']) ? (array) wp_unslash($_POST['content_types']) : [];
+        $target_sites = array_filter(array_unique(array_map('absint', $target_sites_raw)));
+        $content_types = array_filter(array_unique(array_map('absint', $content_types_raw)));
+
+        if(!$source_site || empty($target_sites) || empty($content_types)) {
+            wp_send_json_error(['message' => 'Invalid request payload'], 400);
+            return;
+        }
         
         switch_to_blog($source_site);
         global $wpdb;

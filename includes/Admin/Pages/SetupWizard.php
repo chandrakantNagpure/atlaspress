@@ -1,15 +1,19 @@
 <?php
 namespace AtlasPress\Admin\Pages;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use Exception;
 
 class SetupWizard {
     
     public static function render() {
-        $step = $_GET['step'] ?? 'welcome';
+        $step = isset($_GET['step']) ? sanitize_key(wp_unslash($_GET['step'])) : 'welcome';
         
         echo '<div class="wrap">';
-        echo '<h1>AtlasPress Setup Wizard</h1>';
+        echo '<h1>Atlasly Setup Wizard</h1>';
         echo '<div id="atlaspress-setup-wizard" data-step="' . esc_attr($step) . '"></div>';
         echo '</div>';
     }
@@ -21,13 +25,14 @@ class SetupWizard {
         }
         
         // Verify nonce
-        if(!wp_verify_nonce($_POST['nonce'] ?? '', 'atlaspress_setup')) {
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if(!wp_verify_nonce($nonce, 'atlaspress_setup')) {
             wp_send_json_error('Invalid nonce');
             return;
         }
         
-        $setup_type = sanitize_text_field($_POST['setup_type'] ?? '');
-        $project_name = sanitize_text_field($_POST['project_name'] ?? '');
+        $setup_type = isset($_POST['setup_type']) ? sanitize_text_field(wp_unslash($_POST['setup_type'])) : '';
+        $project_name = isset($_POST['project_name']) ? sanitize_text_field(wp_unslash($_POST['project_name'])) : '';
         
         if (empty($setup_type) || empty($project_name)) {
             wp_send_json_error('Missing required fields');
@@ -53,14 +58,14 @@ class SetupWizard {
                     return;
             }
             
-            update_option('atlaspress_setup_completed', true);
-            update_option('atlaspress_setup_type', $setup_type);
-            update_option('atlaspress_project_name', $project_name);
+            update_option('atlasly_setup_completed', true);
+            update_option('atlasly_setup_type', $setup_type);
+            update_option('atlasly_project_name', $project_name);
             
             wp_send_json_success(['redirect' => admin_url('admin.php?page=atlaspress')]);
             
         } catch(Exception $e) {
-            error_log('AtlasPress Setup Error: ' . $e->getMessage());
+            error_log('Atlasly Setup Error: ' . $e->getMessage());
             wp_send_json_error('Setup failed: ' . $e->getMessage());
         }
     }
@@ -72,7 +77,8 @@ class SetupWizard {
         }
         
         // Verify nonce
-        if(!wp_verify_nonce($_POST['nonce'] ?? '', 'atlaspress_setup')) {
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if(!wp_verify_nonce($nonce, 'atlaspress_setup')) {
             wp_send_json_error('Invalid nonce');
             return;
         }
@@ -93,9 +99,9 @@ class SetupWizard {
             }
             
             // Reset setup options
-            delete_option('atlaspress_setup_completed');
-            delete_option('atlaspress_setup_type');
-            delete_option('atlaspress_project_name');
+            delete_option('atlasly_setup_completed');
+            delete_option('atlasly_setup_type');
+            delete_option('atlasly_project_name');
             
             // Clear cache if available
             if (class_exists('\AtlasPress\Core\Cache')) {
@@ -105,7 +111,7 @@ class SetupWizard {
             wp_send_json_success(['redirect' => admin_url('admin.php?page=atlaspress-setup')]);
             
         } catch(Exception $e) {
-            error_log('AtlasPress Reset Error: ' . $e->getMessage());
+            error_log('Atlasly Reset Error: ' . $e->getMessage());
             wp_send_json_error('Reset failed: ' . $e->getMessage());
         }
     }

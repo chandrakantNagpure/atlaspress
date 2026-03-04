@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Integrations;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class HubSpot {
     
     public static function init() {
@@ -31,7 +35,7 @@ class HubSpot {
             }
         }
         
-        $contentTypeId = get_option('atlaspress_hubspot_content_type');
+        $contentTypeId = get_option('atlasly_hubspot_content_type');
         
         if (!$contentTypeId) {
             $wpdb->insert($wpdb->prefix . 'atlaspress_content_types', [
@@ -41,12 +45,12 @@ class HubSpot {
                 'created_at' => current_time('mysql')
             ]);
             $contentTypeId = $wpdb->insert_id;
-            update_option('atlaspress_hubspot_content_type', $contentTypeId);
+            update_option('atlasly_hubspot_content_type', $contentTypeId);
         }
         
         $wpdb->insert($wpdb->prefix . 'atlaspress_entries', [
             'content_type_id' => $contentTypeId,
-            'title' => 'HubSpot Form - ' . date('Y-m-d H:i:s'),
+            'title' => 'HubSpot Form - ' . gmdate('Y-m-d H:i:s'),
             'slug' => 'hubspot-' . time(),
             'data' => json_encode($formData),
             'status' => 'published',

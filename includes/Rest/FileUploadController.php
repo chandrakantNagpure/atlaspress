@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Rest;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use AtlasPress\Core\Permissions;
 use WP_REST_Request;
 use WP_REST_Response;

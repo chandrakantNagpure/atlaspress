@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Rest;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use AtlasPress\Core\Permissions;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -40,7 +44,7 @@ class ImportExportController {
         }
 
         return new WP_REST_Response([
-            'version' => ATLASPRESS_VERSION,
+            'version' => ATLASLY_VERSION,
             'export_date' => current_time('mysql'),
             'content_types' => $types
         ], 200);
@@ -65,7 +69,7 @@ class ImportExportController {
         }
 
         return new WP_REST_Response([
-            'version' => ATLASPRESS_VERSION,
+            'version' => ATLASLY_VERSION,
             'export_date' => current_time('mysql'),
             'content_type' => $type,
             'entries' => $entries
@@ -152,7 +156,7 @@ class ImportExportController {
         ];
         
         header('Content-Type: application/json');
-        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . date('Y-m-d') . '.json"');
+        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . gmdate('Y-m-d') . '.json"');
         echo wp_json_encode($data, JSON_PRETTY_PRINT);
         exit;
     }
@@ -177,7 +181,9 @@ class ImportExportController {
         }
         
         header('Content-Type: application/xml');
-        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . date('Y-m-d') . '.xml"');
+        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . gmdate('Y-m-d') . '.xml"');
+        // XML download - output is raw XML data for file download, not displayed in browser
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo $xml->asXML();
         exit;
     }
@@ -188,8 +194,9 @@ class ImportExportController {
         }
         
         header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . date('Y-m-d') . '.csv"');
+        header('Content-Disposition: attachment; filename="' . sanitize_file_name($type['slug']) . '-' . gmdate('Y-m-d') . '.csv"');
         
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
         $output = fopen('php://output', 'w');
         
         // Get all unique field names
@@ -217,9 +224,11 @@ class ImportExportController {
                 $row[] = is_array($value) ? json_encode($value) : $value;
             }
             
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv
             fputcsv($output, $row);
         }
         
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
         fclose($output);
         exit;
     }

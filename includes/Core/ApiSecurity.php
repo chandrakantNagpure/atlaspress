@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class ApiSecurity {
     
     public static function init() {
@@ -77,7 +81,7 @@ class ApiSecurity {
     }
     
     private static function validate_api_key($key) {
-        $stored_keys = get_option('atlaspress_api_keys', []);
+        $stored_keys = get_option('atlasly_api_keys', []);
         return in_array(hash('sha256', $key), $stored_keys);
     }
     
@@ -91,14 +95,14 @@ class ApiSecurity {
         // Check timestamp (prevent replay attacks)
         if(abs(time() - intval($timestamp)) > 300) return false; // 5 minutes
         
-        $secret = get_option('atlaspress_webhook_secret', '');
+        $secret = get_option('atlasly_webhook_secret', '');
         $expected = hash_hmac('sha256', $timestamp . $body, $secret);
         
         return hash_equals($signature, $expected);
     }
     
     private static function get_bearer_token() {
-        $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $header = isset($_SERVER['HTTP_AUTHORIZATION']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_AUTHORIZATION'])) : '';
         if(preg_match('/Bearer\s+(.*)$/i', $header, $matches)) {
             return $matches[1];
         }
@@ -110,7 +114,7 @@ class ApiSecurity {
         $parts = explode('.', $token);
         if(count($parts) !== 3) return false;
         
-        $secret = get_option('atlaspress_jwt_secret', '');
+        $secret = get_option('atlasly_jwt_secret', '');
         if(empty($secret)) return false;
         $signature = hash_hmac('sha256', $parts[0] . '.' . $parts[1], $secret, true);
         $expected = self::base64url_decode($parts[2]);
@@ -128,8 +132,8 @@ class ApiSecurity {
     }
 
     private static function add_cors_headers() {
-        $allowed_origins = get_option('atlaspress_allowed_origins', []);
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        $allowed_origins = get_option('atlasly_allowed_origins', []);
+        $origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw(wp_unslash($_SERVER['HTTP_ORIGIN'])) : '';
         if ($origin && (empty($allowed_origins) || in_array($origin, $allowed_origins, true))) {
             header('Access-Control-Allow-Origin: ' . $origin);
             header('Vary: Origin');
@@ -143,7 +147,7 @@ class ApiSecurity {
 
     public static function send_cors_headers() {
         // Ensure CORS headers are sent even on auth errors for AtlasPress routes
-        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        $uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
         if (strpos($uri, '/wp-json/atlaspress/v1/') !== false) {
             self::add_cors_headers();
         }
@@ -151,13 +155,21 @@ class ApiSecurity {
     
     public static function generate_api_key($name = '') {
         $key = bin2hex(random_bytes(32));
-        $keys = get_option('atlaspress_api_keys', []);
+        $keys = get_option('atlasly_api_keys', []);
         $keys[$name ?: 'key_' . time()] = hash('sha256', $key);
-        update_option('atlaspress_api_keys', $keys);
+        update_option('atlasly_api_keys', $keys);
         return $key;
     }
     
     public static function set_allowed_origins($origins) {
-        update_option('atlaspress_allowed_origins', array_filter($origins));
+        $sanitized = [];
+        foreach ((array) $origins as $origin) {
+            $clean = esc_url_raw(trim((string) $origin));
+            if ($clean !== '') {
+                $sanitized[] = $clean;
+            }
+        }
+
+        update_option('atlasly_allowed_origins', array_values(array_unique($sanitized)));
     }
 }

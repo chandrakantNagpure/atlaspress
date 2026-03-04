@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Webhooks {
     
     private static $hooks = [];
@@ -33,11 +37,11 @@ class Webhooks {
             'secret' => $secret
         ];
         
-        update_option('atlaspress_webhooks', self::$hooks);
+        update_option('atlasly_webhooks', self::$hooks);
     }
     
     public static function trigger($event, $data) {
-        $hooks = get_option('atlaspress_webhooks', []);
+        $hooks = get_option('atlasly_webhooks', []);
         
         if(!isset($hooks[$event])) return;
         
@@ -58,6 +62,6 @@ class Webhooks {
     }
     
     public static function getHooks() {
-        return get_option('atlaspress_webhooks', []);
+        return get_option('atlasly_webhooks', []);
     }
 }

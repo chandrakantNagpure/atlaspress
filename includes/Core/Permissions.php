@@ -1,6 +1,10 @@
 <?php
 namespace AtlasPress\Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class Permissions {
     
     public static function init() {
@@ -26,7 +30,7 @@ class Permissions {
         }
     }
     
-    public static function can_manage_types() {
+    public static function can_manage_types($request = null) {
         return current_user_can('atlaspress_manage_types');
     }
     
@@ -54,11 +58,11 @@ class Permissions {
         return !is_wp_error($validation);
     }
     
-    public static function can_delete_entries() {
+    public static function can_delete_entries($request = null) {
         return current_user_can('atlaspress_delete_entries');
     }
     
-    public static function can_view_dashboard() {
+    public static function can_view_dashboard($request = null) {
         return current_user_can('atlaspress_view_dashboard');
     }
 }

@@ -21,7 +21,7 @@ class Autoloader {
             $class
         );
 
-        $file = ATLASPRESS_PATH . 'includes/' . $path . '.php';
+        $file = ATLASLY_PATH . 'includes/' . $path . '.php';
 
         if ( file_exists( $file ) ) {
             require_once $file;
